@@ -22,12 +22,12 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { Hero3DCanvas } from "@/components/landing/Hero3DCanvas";
 import {
-  Section01Flight,
-  Section02Frames,
-  Section03Movement,
-  Section04Mesh,
-  Section05Interactive,
-} from "@/components/landing/LandingStoryComponents";
+  SectionCapture,
+  SectionAnalyze,
+  SectionReconstruct,
+  SectionGenerate,
+  SectionExplore,
+} from "@/components/landing/LandingScrollStory";
 
 export default function LandingPage() {
   const heroRef = useRef<HTMLDivElement>(null);
@@ -134,29 +134,29 @@ export default function LandingPage() {
           DRONE -> CAPTURE -> VIDEO -> FRAMES -> ANALYSIS -> 3D RECONSTRUCTION -> 3D TERRAIN -> APPLICATION
       ========================================================================= */}
       <div ref={storyRef} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 space-y-32">
-        {/* SECTION 01: START WITH A SINGLE DRONE FLIGHT */}
+        {/* SECTION 01 — CAPTURE */}
         <section id="section-01" className="scroll-mt-20">
-          <Section01Flight />
+          <SectionCapture />
         </section>
 
-        {/* SECTION 02: WE TURN VIDEO INTO VISUAL DATA */}
+        {/* SECTION 02 — ANALYZE */}
         <section id="section-02" className="scroll-mt-20">
-          <Section02Frames />
+          <SectionAnalyze />
         </section>
 
-        {/* SECTION 03: UNDERSTAND HOW THE CAMERA MOVED */}
+        {/* SECTION 03 — RECONSTRUCT */}
         <section id="section-03" className="scroll-mt-20">
-          <Section03Movement />
+          <SectionReconstruct />
         </section>
 
-        {/* SECTION 04: FROM POINTS TO A 3D WORLD */}
+        {/* SECTION 04 — GENERATE */}
         <section id="section-04" className="scroll-mt-20">
-          <Section04Mesh />
+          <SectionGenerate />
         </section>
 
-        {/* SECTION 05: EXPLORE THE RECONSTRUCTION */}
+        {/* SECTION 05 — EXPLORE */}
         <section id="section-05" className="scroll-mt-20">
-          <Section05Interactive />
+          <SectionExplore />
         </section>
       </div>
 
