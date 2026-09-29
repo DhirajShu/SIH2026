@@ -16,16 +16,12 @@ import {
   Radio,
   Boxes
 } from "lucide-react";
-import { getStoredUser, UserSession, logoutUser } from "@/lib/auth";
+import { useAuth } from "@/lib/auth";
 
 export function Navbar() {
   const pathname = usePathname();
-  const [user, setUser] = useState<UserSession | null>(null);
+  const { user, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-  useEffect(() => {
-    setUser(getStoredUser());
-  }, []);
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard", icon: Boxes },
@@ -110,14 +106,14 @@ export function Navbar() {
                   <span className="text-[10px] text-neutral-400 leading-none mt-1">{user.role}</span>
                 </div>
               </Link>
-              <Link
-                href="/login"
-                onClick={() => logoutUser()}
+              <button
+                type="button"
+                onClick={logout}
                 title="Switch User / Logout"
-                className="p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60 rounded-lg transition-colors"
+                className="p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60 rounded-lg transition-colors cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
-              </Link>
+              </button>
             </div>
           ) : (
             <div className="flex items-center gap-2">
@@ -170,16 +166,26 @@ export function Navbar() {
           })}
           <div className="pt-2 border-t border-neutral-800/80 flex items-center justify-between text-neutral-400">
             <span>{user ? user.name : "Guest Surveyor"}</span>
-            <Link
-              href="/login"
-              onClick={() => {
-                logoutUser();
-                setMobileMenuOpen(false);
-              }}
-              className="text-amber-400 hover:underline"
-            >
-              {user ? "Sign Out" : "Sign In"}
-            </Link>
+            {user ? (
+              <button
+                type="button"
+                onClick={() => {
+                  logout();
+                  setMobileMenuOpen(false);
+                }}
+                className="text-amber-400 hover:underline cursor-pointer"
+              >
+                Sign Out
+              </button>
+            ) : (
+              <Link
+                href="/login"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-amber-400 hover:underline"
+              >
+                Sign In
+              </Link>
+            )}
           </div>
         </div>
       )}
