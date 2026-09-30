@@ -109,6 +109,14 @@ export default function DashboardPage() {
           </div>
 
           <Link
+            href="/dashboard/demo"
+            className="px-4 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-amber-500/40 text-amber-300 font-semibold font-mono text-xs flex items-center gap-2 shadow-lg shadow-amber-500/10 transition-all hover:scale-[1.02] cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-amber-400" />
+            Open Demo Reconstruction
+          </Link>
+
+          <Link
             href="/dashboard/new"
             className="px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] cursor-pointer"
           >
@@ -129,7 +137,7 @@ export default function DashboardPage() {
            EMPTY STATE
            "No reconstructions yet."
            "Upload your first drone flight to begin."
-           Button: "Create Reconstruction"
+           Button: "Create Reconstruction" and "Open Demo Reconstruction"
         ========================================================================= */
         <div className="py-16 sm:py-24 px-4 flex flex-col items-center justify-center text-center rounded-2xl border border-dashed border-neutral-800 bg-neutral-900/30 max-w-2xl mx-auto space-y-5">
           <div className="w-14 h-14 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-amber-500 shadow-xl">
@@ -145,13 +153,21 @@ export default function DashboardPage() {
             </p>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
             <Link
               href="/dashboard/new"
               className="px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
             >
               <PlusCircle className="w-4 h-4" />
               Create Reconstruction
+            </Link>
+
+            <Link
+              href="/dashboard/demo"
+              className="px-5 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-amber-500/50 text-amber-300 font-semibold font-mono text-xs flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/10"
+            >
+              <Sparkles className="w-4 h-4 text-amber-400" />
+              Open Demo Reconstruction
             </Link>
           </div>
 

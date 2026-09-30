@@ -13,7 +13,8 @@ import {
   Menu,
   X,
   User,
-  Radio
+  Radio,
+  Sparkles
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 
@@ -26,6 +27,7 @@ export function DashboardSidebar() {
     { href: "/dashboard", label: "Overview", icon: Boxes, exact: true },
     { href: "/dashboard/projects", label: "Projects", icon: FolderGit2, exact: false },
     { href: "/dashboard/new", label: "New Reconstruction", icon: PlusCircle, exact: false },
+    { href: "/dashboard/demo", label: "Demo Reconstruction", icon: Sparkles, exact: false },
     { href: "/dashboard/settings", label: "Settings", icon: Settings, exact: false },
   ];
 
