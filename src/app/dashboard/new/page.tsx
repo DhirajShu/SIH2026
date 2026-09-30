@@ -289,7 +289,7 @@ export default function NewReconstructionPage() {
   };
 
   return (
-    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-8 bg-[#080B0A] text-[#F1F4F2]">
+    <div className="flex-1 p-4 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-6 sm:space-y-8 bg-[#080B0A] text-[#F1F4F2]">
       {/* Header */}
       <div className="pb-6 border-b border-[#26302C] space-y-1">
         <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F1F4F2]">

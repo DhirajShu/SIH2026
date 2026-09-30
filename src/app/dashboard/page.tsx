@@ -68,7 +68,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none space-y-8 bg-[#080B0A] text-[#F1F4F2]">
+    <div className="flex-1 p-4 sm:p-8 lg:p-10 font-sans select-none space-y-6 sm:space-y-8 bg-[#080B0A] text-[#F1F4F2]">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#26302C] gap-4">
         <div>

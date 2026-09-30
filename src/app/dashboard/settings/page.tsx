@@ -51,8 +51,8 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="flex-1 bg-[#080B0A] font-sans text-[#F1F4F2] py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="flex-1 bg-[#080B0A] font-sans text-[#F1F4F2] py-6 sm:py-8 px-3.5 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto space-y-6 sm:space-y-8">
         {/* Header */}
         <div className="pb-4 border-b border-[#26302C]">
           <div className="flex items-center gap-2 text-xs font-mono text-[#68736E]">

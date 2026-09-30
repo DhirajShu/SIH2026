@@ -162,7 +162,7 @@ export function TerrainViewer({
   return (
     <div
       ref={containerRef}
-      className={`relative w-full h-[640px] sm:h-[720px] lg:h-[760px] bg-[#080B0A] border border-[#26302C] rounded-xl overflow-hidden select-none flex flex-col font-sans shadow-2xl transition-all ${
+      className={`relative w-full h-[460px] sm:h-[640px] lg:h-[760px] bg-[#080B0A] border border-[#26302C] rounded-xl overflow-hidden select-none flex flex-col font-sans shadow-2xl transition-all ${
         isFullscreen ? "!h-screen !w-screen !rounded-none fixed inset-0 z-50" : ""
       }`}
     >
@@ -213,12 +213,12 @@ export function TerrainViewer({
       {/* =========================================================================
           3. CONTROL DOCK (FLOATING OVER 3D VIEWPORT)
       ========================================================================= */}
-      <div className="absolute top-4 left-4 z-20 flex flex-wrap items-center gap-2 max-w-[calc(100%-2rem)]">
+      <div className="absolute top-2.5 sm:top-4 left-2.5 sm:left-4 right-2.5 sm:right-auto z-20 flex flex-wrap items-center gap-1.5 sm:gap-2 max-w-full">
         {/* Core Mode Switcher: Terrain, Point Cloud, Wireframe */}
-        <div className="flex items-center bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] rounded-[8px] p-1 shadow-lg">
+        <div className="flex items-center bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] rounded-[8px] p-0.5 sm:p-1 shadow-lg">
           <button
             onClick={() => setMode("textured")}
-            className={`px-3 py-1.5 rounded-[6px] text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-[6px] text-[11px] sm:text-xs font-mono font-medium flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer ${
               mode === "textured"
                 ? "bg-[#78AFA2] text-[#080B0A] font-bold shadow-sm"
                 : "text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916]"
@@ -226,12 +226,13 @@ export function TerrainViewer({
             title="Render textured photogrammetric 3D terrain mesh"
           >
             <Mountain className="w-3.5 h-3.5" />
-            <span>Terrain</span>
+            <span className="hidden sm:inline">Terrain</span>
+            <span className="sm:hidden">Mesh</span>
           </button>
 
           <button
             onClick={() => setMode("pointcloud")}
-            className={`px-3 py-1.5 rounded-[6px] text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-[6px] text-[11px] sm:text-xs font-mono font-medium flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer ${
               mode === "pointcloud"
                 ? "bg-[#78AFA2] text-[#080B0A] font-bold shadow-sm"
                 : "text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916]"
@@ -239,12 +240,13 @@ export function TerrainViewer({
             title="Render genuine 3D spatial points derived from GLB geometry"
           >
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Point Cloud</span>
+            <span className="hidden sm:inline">Point Cloud</span>
+            <span className="sm:hidden">Points</span>
           </button>
 
           <button
             onClick={() => setMode("wireframe")}
-            className={`px-3 py-1.5 rounded-[6px] text-xs font-mono font-medium flex items-center gap-1.5 transition-all cursor-pointer ${
+            className={`px-2.5 sm:px-3 py-1.5 rounded-[6px] text-[11px] sm:text-xs font-mono font-medium flex items-center gap-1 sm:gap-1.5 transition-all cursor-pointer ${
               mode === "wireframe"
                 ? "bg-[#78AFA2] text-[#080B0A] font-bold shadow-sm"
                 : "text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916]"
@@ -252,15 +254,16 @@ export function TerrainViewer({
             title="Render geometric triangulated wireframe mesh"
           >
             <Grid className="w-3.5 h-3.5" />
-            <span>Wireframe</span>
+            <span className="hidden sm:inline">Wireframe</span>
+            <span className="sm:hidden">Wire</span>
           </button>
         </div>
 
         {/* Camera Reset & Views */}
-        <div className="flex items-center bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] rounded-[8px] p-1 shadow-lg">
+        <div className="flex items-center bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] rounded-[8px] p-0.5 sm:p-1 shadow-lg">
           <button
             onClick={handleResetCamera}
-            className="px-2.5 py-1.5 text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] rounded-[6px] text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-2 sm:px-2.5 py-1.5 text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] rounded-[6px] text-[11px] sm:text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
             title="Reset Camera (Orbit, Zoom, and Pan to default angle)"
           >
             <RotateCcw className="w-3.5 h-3.5" />
@@ -269,7 +272,7 @@ export function TerrainViewer({
 
           <button
             onClick={handleSetTopView}
-            className="px-2.5 py-1.5 text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] rounded-[6px] text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
+            className="px-2 sm:px-2.5 py-1.5 text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] rounded-[6px] text-[11px] sm:text-xs font-mono flex items-center gap-1 transition-colors cursor-pointer"
             title="Align camera to Top / Nadir orthographic view"
           >
             <Compass className="w-3.5 h-3.5" />
@@ -285,7 +288,7 @@ export function TerrainViewer({
               onToggleAnalyze();
             }
           }}
-          className={`px-3 py-1.5 rounded-[8px] border text-xs font-mono flex items-center gap-1.5 shadow-lg transition-all cursor-pointer ${
+          className={`px-2.5 sm:px-3 py-1.5 rounded-[8px] border text-[11px] sm:text-xs font-mono flex items-center gap-1.5 shadow-lg transition-all cursor-pointer ${
             measuring
               ? "bg-[#78AFA2]/20 border-[#78AFA2]/50 text-[#78AFA2] font-semibold"
               : "bg-[#0D1210]/95 border-[#26302C] text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916]"
@@ -293,13 +296,13 @@ export function TerrainViewer({
           title="Toggle Model-Space Measurement Tool"
         >
           <Ruler className="w-3.5 h-3.5 text-[#78AFA2]" />
-          <span>{measuring ? "Measuring Active" : "Measure"}</span>
+          <span>{measuring ? "Measuring" : "Measure"}</span>
         </button>
 
         {/* Fullscreen Toggle */}
         <button
           onClick={toggleFullscreen}
-          className="p-2 bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] rounded-[8px] text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] transition-colors shadow-lg cursor-pointer"
+          className="p-1.5 sm:p-2 bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] rounded-[8px] text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] transition-colors shadow-lg cursor-pointer"
           title="Toggle Fullscreen 3D Viewport"
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
@@ -307,7 +310,7 @@ export function TerrainViewer({
       </div>
 
       {/* Navigation & Controls Helper */}
-      <div className="absolute top-4 right-4 z-20 hidden md:flex items-center gap-3 px-3 py-1.5 rounded-[8px] bg-[#0D1210]/90 backdrop-blur-md border border-[#26302C] text-[11px] font-mono text-[#9BA6A1] shadow-lg pointer-events-none">
+      <div className="absolute top-4 right-4 z-20 hidden lg:flex items-center gap-3 px-3 py-1.5 rounded-[8px] bg-[#0D1210]/90 backdrop-blur-md border border-[#26302C] text-[11px] font-mono text-[#9BA6A1] shadow-lg pointer-events-none">
         <span>Orbit: <strong className="text-[#F1F4F2]">Left Drag</strong></span>
         <span className="text-[#26302C]">•</span>
         <span>Pan: <strong className="text-[#F1F4F2]">Right Drag</strong></span>
@@ -318,7 +321,10 @@ export function TerrainViewer({
       {/* =========================================================================
           4. 3D WEBGL VIEWPORT (THREE.JS / REACT THREE FIBER)
       ========================================================================= */}
-      <div className="flex-1 w-full h-full relative cursor-grab active:cursor-grabbing">
+      <div
+        className="flex-1 w-full h-full relative cursor-grab active:cursor-grabbing"
+        style={{ touchAction: "none" }}
+      >
         <Canvas
           camera={{ position: isRealModel ? [0, 55, 75] : [70, 60, 80], fov: 44 }}
           shadows
@@ -363,29 +369,35 @@ export function TerrainViewer({
             maxDistance={260}
             minDistance={8}
             maxPolarAngle={Math.PI / 2 - 0.04}
+            touches={{
+              ONE: THREE.TOUCH.ROTATE,
+              TWO: THREE.TOUCH.DOLLY_PAN,
+            }}
           />
         </Canvas>
 
-        {/* Prototype Reconstruction Disclaimer Floating Badge */}
-        <div className="absolute bottom-4 left-4 z-20 pointer-events-none max-w-sm">
-          <div className="p-3 rounded-xl bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] text-xs font-mono space-y-1 shadow-lg">
-            <div className="flex items-center gap-2">
-              <span className="px-1.5 py-0.5 rounded-[4px] bg-[#78AFA2]/12 border border-[#78AFA2]/30 text-[#78AFA2] text-[10px] font-bold tracking-wider uppercase">
-                DEMO RECONSTRUCTION
-              </span>
-              <span className="text-[10px] text-[#68736E] uppercase">3D VIEWER</span>
+        {/* Prototype Reconstruction Disclaimer Floating Badge (Hidden when measuring on mobile) */}
+        {!measuring && (
+          <div className="absolute bottom-3 left-3 z-20 pointer-events-none max-w-[260px] sm:max-w-sm">
+            <div className="p-2 sm:p-3 rounded-xl bg-[#0D1210]/95 backdrop-blur-md border border-[#26302C] text-xs font-mono space-y-0.5 sm:space-y-1 shadow-lg">
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <span className="px-1.5 py-0.5 rounded-[4px] bg-[#78AFA2]/12 border border-[#78AFA2]/30 text-[#78AFA2] text-[9px] sm:text-[10px] font-bold tracking-wider uppercase">
+                  DEMO RECONSTRUCTION
+                </span>
+                <span className="text-[9px] sm:text-[10px] text-[#68736E] uppercase hidden sm:inline">3D VIEWER</span>
+              </div>
+              <p className="text-[10px] sm:text-[11px] text-[#9BA6A1] font-sans leading-snug sm:leading-relaxed">
+                {isRealModel
+                  ? "Northumberlandia Land Sculpture 3D model."
+                  : "Procedural terrain demonstrating interactive 3D model exploration."}
+              </p>
             </div>
-            <p className="text-[11px] text-[#9BA6A1] font-sans leading-relaxed">
-              {isRealModel
-                ? "Northumberlandia Land Sculpture prebuilt reconstruction asset."
-                : "Procedural terrain demonstrating interactive 3D model exploration."}
-            </p>
           </div>
-        </div>
+        )}
 
         {/* On-screen Model-Space Measurement Indicator Card */}
         {measuring && (
-          <div className="absolute bottom-4 right-4 z-20 p-4 rounded-xl bg-[#0D1210]/95 backdrop-blur-md border border-[#78AFA2]/40 text-xs font-mono shadow-xl max-w-xs space-y-2 animate-in fade-in">
+          <div className="absolute bottom-3 inset-x-3 sm:inset-x-auto sm:right-4 z-20 p-3 sm:p-4 rounded-xl bg-[#0D1210]/95 backdrop-blur-md border border-[#78AFA2]/40 text-xs font-mono shadow-xl max-w-full sm:max-w-xs space-y-2 animate-in fade-in">
             <div className="flex items-center justify-between font-semibold text-[#78AFA2] pb-1.5 border-b border-[#26302C]">
               <span className="flex items-center gap-1.5">
                 <Ruler className="w-3.5 h-3.5 text-[#78AFA2]" /> Model-space measurement
@@ -454,8 +466,8 @@ export function TerrainViewer({
           - Bounding box
       ========================================================================= */}
       {isAnalyzeOpen && (
-        <div className="absolute top-0 right-0 bottom-0 w-88 max-w-full z-30 bg-[#0D1210]/95 backdrop-blur-xl border-l border-[#26302C] p-6 font-mono text-xs shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-200">
-          <div className="space-y-6">
+        <div className="absolute top-0 right-0 bottom-0 w-full sm:w-88 max-w-full z-30 bg-[#0D1210]/98 backdrop-blur-xl border-l border-[#26302C] p-4 sm:p-6 font-mono text-xs shadow-2xl flex flex-col justify-between overflow-y-auto animate-in slide-in-from-right duration-200">
+          <div className="space-y-4 sm:space-y-6">
             {/* Header */}
             <div className="flex items-center justify-between pb-3.5 border-b border-[#26302C]">
               <div className="flex items-center gap-2 text-[#F1F4F2] font-semibold text-sm">

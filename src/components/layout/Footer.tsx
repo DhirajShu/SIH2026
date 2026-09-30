@@ -8,7 +8,7 @@ import { TerraReconLogo } from "./TerraReconLogo";
 
 export function Footer() {
   const pathname = usePathname();
-  if (pathname === "/") return null;
+  if (pathname === "/" || pathname.startsWith("/dashboard")) return null;
 
   return (
     <footer className="border-t border-[#26302C] bg-[#080B0A] font-sans text-xs text-[#9BA6A1] select-none">

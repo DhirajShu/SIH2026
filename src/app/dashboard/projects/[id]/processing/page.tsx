@@ -226,7 +226,7 @@ export default function ProcessingPage({ params }: PageProps) {
   }
 
   return (
-    <div className="flex-1 bg-[#080B0A] text-[#F1F4F2] p-6 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-8">
+    <div className="flex-1 bg-[#080B0A] text-[#F1F4F2] p-4 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-6 sm:space-y-8">
       {/* Top Prototype Reconstruction Disclaimer Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#0D1210] border border-[#26302C] text-xs font-mono">
         <div className="flex items-center gap-2">

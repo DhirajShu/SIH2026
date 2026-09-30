@@ -880,9 +880,14 @@ function CameraController({
       targetLookAtY = THREE.MathUtils.lerp(3.5, 7.5, p);
     }
 
+    const isMobile = state.size.width < 768;
+    const mobileDistMultiplier = isMobile ? 1.32 : 1.0;
+    const adjustedPosZ = targetPosZ * mobileDistMultiplier;
+    const adjustedPosY = isMobile ? targetPosY * 1.08 : targetPosY;
+
     state.camera.position.x = THREE.MathUtils.lerp(state.camera.position.x, targetPosX, 0.06);
-    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, targetPosY, 0.06);
-    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, targetPosZ, 0.06);
+    state.camera.position.y = THREE.MathUtils.lerp(state.camera.position.y, adjustedPosY, 0.06);
+    state.camera.position.z = THREE.MathUtils.lerp(state.camera.position.z, adjustedPosZ, 0.06);
     state.camera.lookAt(0, targetLookAtY, 0);
   });
 
@@ -894,6 +899,10 @@ function CameraController({
       minDistance={10}
       maxDistance={45}
       maxPolarAngle={Math.PI / 2 - 0.05}
+      touches={{
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN,
+      }}
     />
   ) : null;
 }
@@ -908,7 +917,10 @@ export function DroneScene({
   resetCameraTrigger = 0,
 }: DroneSceneProps) {
   return (
-    <div className="absolute inset-0 w-full h-full select-none">
+    <div
+      className="absolute inset-0 w-full h-full select-none"
+      style={{ touchAction: isInteractive ? "none" : "auto" }}
+    >
       <Canvas
         camera={{ position: [0, 11, 18], fov: 40 }}
         shadows

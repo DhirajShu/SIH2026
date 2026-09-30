@@ -95,7 +95,7 @@ export default function ProjectDetailsPage({ params }: PageProps) {
           </div>
 
           {/* Right: Status & Primary Action Buttons ("Analyze" and "Export") */}
-          <div className="flex items-center gap-3 shrink-0">
+          <div className="flex flex-wrap items-center justify-between sm:justify-end gap-2.5 sm:gap-3 shrink-0">
             {/* Status Indicator */}
             <span
               className={`px-2.5 py-1 rounded-[6px] font-mono text-xs border flex items-center gap-1.5 ${
@@ -120,7 +120,7 @@ export default function ProjectDetailsPage({ params }: PageProps) {
             {/* Action Button: Analyze */}
             <button
               onClick={() => setIsAnalyzeOpen((prev) => !prev)}
-              className={`h-[40px] px-3.5 rounded-[8px] font-semibold font-mono text-xs flex items-center gap-1.5 transition-all border cursor-pointer ${
+              className={`h-[38px] sm:h-[40px] px-3 sm:px-3.5 rounded-[8px] font-semibold font-mono text-xs flex items-center gap-1.5 transition-all border cursor-pointer ${
                 isAnalyzeOpen
                   ? "bg-[#78AFA2]/15 text-[#78AFA2] border-[#78AFA2]/50"
                   : "bg-[#121916] hover:bg-[#121916]/80 text-[#F1F4F2] border-[#26302C] hover:border-[#78AFA2]/40"
@@ -134,7 +134,7 @@ export default function ProjectDetailsPage({ params }: PageProps) {
             {/* Action Button: Export */}
             <button
               onClick={() => setIsExportOpen(true)}
-              className="h-[40px] px-4 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-bold font-mono text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              className="h-[38px] sm:h-[40px] px-3.5 sm:px-4 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-bold font-mono text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
               title="Export 3D Model (OBJ/PLY) and Technical Report"
             >
               <Download className="w-3.5 h-3.5" />
@@ -147,7 +147,7 @@ export default function ProjectDetailsPage({ params }: PageProps) {
       {/* =========================================================================
           MAIN APPLICATION VIEWPORT
       ========================================================================= */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-5 flex-1 flex flex-col space-y-4">
+      <div className="max-w-7xl mx-auto w-full px-2 sm:px-6 py-3 sm:py-5 flex-1 flex flex-col space-y-3 sm:space-y-4">
         {/* Large 3D Viewport Component */}
         <TerrainViewer
           project={project}

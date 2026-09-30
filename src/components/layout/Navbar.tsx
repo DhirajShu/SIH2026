@@ -30,9 +30,10 @@ export function Navbar() {
 
   const isAuthPage = pathname === "/login" || pathname === "/signup";
   const isLandingPage = pathname === "/";
+  const isDashboard = pathname.startsWith("/dashboard");
 
-  // Landing page has its own navigation embedded in the scroll story
-  if (isLandingPage) {
+  // Landing page has its own embedded story nav; dashboard has DashboardSidebar
+  if (isLandingPage || isDashboard) {
     return null;
   }
 

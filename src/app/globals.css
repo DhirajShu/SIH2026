@@ -44,11 +44,14 @@
 }
 
 /* Global Base */
+html,
 body {
   background-color: #080b0a;
   color: #f1f4f2;
   font-family: var(--font-sans);
   overflow-x: hidden;
+  max-width: 100vw;
+  -webkit-tap-highlight-color: transparent;
 }
 
 /* Selection Color */

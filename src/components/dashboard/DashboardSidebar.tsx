@@ -32,30 +32,40 @@ export function DashboardSidebar() {
   return (
     <>
       {/* Mobile Top Bar */}
-      <div className="md:hidden flex items-center justify-between px-4 py-3 bg-[#0D1210] border-b border-[#26302C] text-[#F1F4F2]">
+      <div className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-2.5 bg-[#0D1210]/95 backdrop-blur-md border-b border-[#26302C] text-[#F1F4F2]">
         <Link href="/dashboard" className="flex items-center gap-2">
           <TerraReconLogo size="sm" showSubtext={false} />
         </Link>
-        <button
-          onClick={() => setMobileOpen(!mobileOpen)}
-          className="p-1.5 rounded-[8px] border border-[#26302C] text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] transition-colors duration-200"
-        >
-          {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-        </button>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/dashboard/new"
+            className="h-8 px-2.5 rounded-[6px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold text-[11px] font-mono flex items-center gap-1 transition-colors"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            <span>New</span>
+          </Link>
+          <button
+            onClick={() => setMobileOpen(!mobileOpen)}
+            aria-label="Toggle navigation menu"
+            className="p-1.5 rounded-[8px] border border-[#26302C] text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] transition-colors duration-200 cursor-pointer"
+          >
+            {mobileOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          </button>
+        </div>
       </div>
 
       {/* Mobile Backdrop */}
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="md:hidden fixed inset-0 z-40 bg-black/75"
+          className="md:hidden fixed inset-0 z-45 bg-black/80 backdrop-blur-sm transition-opacity"
         />
       )}
 
       {/* Sidebar Container — uses same graphite/border language as landing navbar */}
       <aside
-        className={`fixed md:sticky top-0 left-0 z-40 md:z-20 h-screen w-64 bg-[#0D1210] border-r border-[#26302C] flex flex-col justify-between select-none transition-transform duration-200 ease-in-out font-sans ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        className={`fixed md:sticky top-0 left-0 z-50 md:z-20 h-screen w-72 sm:w-64 bg-[#0D1210] border-r border-[#26302C] flex flex-col justify-between select-none transition-transform duration-200 ease-in-out font-sans ${
+          mobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"
         }`}
       >
         {/* Top Branding & Main Nav */}
