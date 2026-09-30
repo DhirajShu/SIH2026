@@ -1,7 +1,7 @@
 import { ReconstructionProject } from "./types";
 import { SAMPLE_PROJECTS } from "./mockData";
 
-const STORAGE_KEY = "terra_recon_projects_v1";
+const STORAGE_KEY = "terra_recon_projects_v2";
 
 export function getProjects(): ReconstructionProject[] {
   if (typeof window === "undefined") {
@@ -9,18 +9,19 @@ export function getProjects(): ReconstructionProject[] {
   }
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
+    if (raw === null) {
+      // First initialization: seed with realistic SIH sample projects
       localStorage.setItem(STORAGE_KEY, JSON.stringify(SAMPLE_PROJECTS));
       return SAMPLE_PROJECTS;
     }
     const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
+    if (Array.isArray(parsed)) {
       return parsed;
     }
   } catch (e) {
     console.error("Failed to load projects from localStorage", e);
   }
-  return SAMPLE_PROJECTS;
+  return [];
 }
 
 export function getProjectById(id: string): ReconstructionProject | undefined {
@@ -44,6 +45,22 @@ export function saveProject(project: ReconstructionProject): void {
   } catch (e) {
     console.error("Failed to save project to localStorage", e);
   }
+}
+
+export function deleteProject(id: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    const current = getProjects();
+    const updated = current.filter((p) => p.id !== id);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+  } catch (e) {
+    console.error("Failed to delete project from localStorage", e);
+  }
+}
+
+export function clearAllProjects(): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(STORAGE_KEY, JSON.stringify([]));
 }
 
 export function resetDemoProjects(): void {
