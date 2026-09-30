@@ -2,7 +2,7 @@
 
 import React, { useMemo, useRef, useEffect } from "react";
 import * as THREE from "three";
-import { useFrame, ThreeEvent } from "@react-three/fiber";
+import { ThreeEvent } from "@react-three/fiber";
 import { ViewerDisplayMode, TelemetryPoint } from "@/lib/types";
 
 export interface ModelGeometryStats {
@@ -84,7 +84,7 @@ export function Terrain3D({
       }
     };
 
-    // Apply heights & vertex colors
+    // Apply heights & vertex colors (natural realistic earth/rock tones)
     const colors = new Float32Array(pos.count * 3);
     const color = new THREE.Color();
 
@@ -108,7 +108,7 @@ export function Terrain3D({
       z: Number((box.max.z - box.min.z).toFixed(1)),
     };
 
-    // Generate colors based on elevation and slope
+    // Generate natural, realistic earth/rock tones
     const normals = geo.attributes.normal;
     for (let i = 0; i < pos.count; i++) {
       const y = pos.getY(i);
@@ -117,17 +117,22 @@ export function Terrain3D({
 
       if (projectType === "alpine") {
         if (normH > 0.85) {
-          color.setHSL(0.6, 0.1, 0.85 + normH * 0.15);
+          // Summit rock & weathered stone
+          color.setHSL(0.55, 0.08, 0.75 + normH * 0.2);
         } else if (normH > 0.4) {
-          color.setHSL(0.08, 0.2, 0.28 + normH * 0.25);
+          // Talus slope / scree
+          color.setHSL(0.08, 0.15, 0.28 + normH * 0.22);
         } else {
-          color.setHSL(0.3, 0.35, 0.22 + normH * 0.15);
+          // Valley bedrock
+          color.setHSL(0.25, 0.18, 0.22 + normH * 0.12);
         }
       } else {
         if (ny < 0.65) {
-          color.setHSL(0.08, 0.25, 0.22 + normH * 0.18);
+          // Steep cliff faces / quarry walls (dark basalt)
+          color.setHSL(0.08, 0.12, 0.22 + normH * 0.15);
         } else {
-          color.setHSL(0.1, 0.28, 0.35 + normH * 0.15);
+          // Quarry benches / aggregate beds
+          color.setHSL(0.12, 0.16, 0.32 + normH * 0.12);
         }
       }
 
@@ -138,16 +143,16 @@ export function Terrain3D({
 
     geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
 
-    // Contour line texture
+    // Contour line texture with subtle TerraRecon teal accents
     const canvas = document.createElement("canvas");
     canvas.width = 512;
     canvas.height = 512;
     const ctx = canvas.getContext("2d");
     if (ctx) {
-      ctx.fillStyle = "#1c1f24";
+      ctx.fillStyle = "#0D1210";
       ctx.fillRect(0, 0, 512, 512);
 
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.08)";
+      ctx.strokeStyle = "rgba(38, 48, 44, 0.4)";
       ctx.lineWidth = 1;
       for (let i = 0; i <= 512; i += 32) {
         ctx.beginPath();
@@ -161,7 +166,7 @@ export function Terrain3D({
         ctx.stroke();
       }
 
-      ctx.strokeStyle = "rgba(245, 158, 11, 0.25)";
+      ctx.strokeStyle = "rgba(120, 175, 162, 0.22)";
       ctx.lineWidth = 1.5;
       for (let r = 20; r < 240; r += 28) {
         ctx.beginPath();
@@ -184,7 +189,7 @@ export function Terrain3D({
     };
   }, [projectType]);
 
-  // Point cloud representation
+  // Point cloud representation: subtle TerraRecon teal/neutral tones
   const pointCloudGeometry = useMemo(() => {
     const count = 45000;
     const geo = new THREE.BufferGeometry();
@@ -202,7 +207,8 @@ export function Terrain3D({
       positions[i * 3 + 2] = rz;
 
       const norm = (ry - minElevation) / (maxElevation - minElevation || 1);
-      col.setHSL(0.1 + norm * 0.05, 0.4, 0.4 + norm * 0.3);
+      // Muted aviation teal / neutral tones (hue ~ 168deg = 0.46, low saturation)
+      col.setHSL(0.46, 0.20, 0.38 + norm * 0.3);
 
       colors[i * 3] = col.r;
       colors[i * 3 + 1] = col.g;
@@ -241,20 +247,32 @@ export function Terrain3D({
     }
   };
 
+  // Safe measurement line using Three.Line primitive to avoid SVG line conflict
+  const measurementLineObject = useMemo(() => {
+    if (measurementPoints.length !== 2) return null;
+    const lineGeo = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(measurementPoints[0].x, measurementPoints[0].y + 0.3, measurementPoints[0].z),
+      new THREE.Vector3(measurementPoints[1].x, measurementPoints[1].y + 0.3, measurementPoints[1].z),
+    ]);
+    const lineMat = new THREE.LineBasicMaterial({ color: "#78AFA2", linewidth: 2 });
+    return new THREE.Line(lineGeo, lineMat);
+  }, [measurementPoints]);
+
   return (
     <group>
       {/* Dynamic Lighting */}
-      <ambientLight intensity={0.45} />
+      <ambientLight intensity={0.5} />
       <directionalLight
         position={[
           Math.cos((sunAngle * Math.PI) / 180) * 80,
           65,
           Math.sin((sunAngle * Math.PI) / 180) * 80,
         ]}
-        intensity={1.25}
+        intensity={1.2}
         castShadow
       />
-      <directionalLight position={[-40, 30, -40]} intensity={0.25} color="#60a5fa" />
+      {/* Soft teal directional fill */}
+      <directionalLight position={[-40, 30, -40]} intensity={0.2} color="#78AFA2" />
 
       {/* Render based on selected display mode */}
       {mode === "pointcloud" ? (
@@ -264,7 +282,7 @@ export function Terrain3D({
             vertexColors
             sizeAttenuation
             transparent
-            opacity={0.9}
+            opacity={0.88}
           />
         </points>
       ) : mode === "wireframe" ? (
@@ -274,14 +292,14 @@ export function Terrain3D({
           onClick={handleClick}
         >
           <meshBasicMaterial
-            color="#f59e0b"
+            color="#78AFA2"
             wireframe
             transparent
             opacity={0.65}
           />
         </mesh>
       ) : (
-        /* Default: Solid Textured 3D Mesh */
+        /* Default: Solid Textured 3D Mesh with natural earth/rock tones */
         <mesh
           ref={meshRef}
           geometry={geometry}
@@ -291,55 +309,37 @@ export function Terrain3D({
           <meshStandardMaterial
             vertexColors
             map={elevationTexture}
-            roughness={0.82}
-            metalness={0.08}
+            roughness={0.84}
+            metalness={0.06}
           />
         </mesh>
       )}
 
-      {/* Interactive Model-Space Measurement Markers */}
+      {/* Interactive Model-Space Measurement Markers in TerraRecon Teal */}
       {measurementPoints.map((pt, index) => (
         <group key={index} position={pt}>
           <mesh>
             <sphereGeometry args={[1.0, 16, 16]} />
-            <meshStandardMaterial color="#f59e0b" emissive="#b45309" roughness={0.2} />
+            <meshStandardMaterial color="#78AFA2" emissive="#4F7F74" roughness={0.2} />
           </mesh>
           <mesh position={[0, 1.8, 0]}>
             <cylinderGeometry args={[0.08, 0.08, 3.6]} />
-            <meshBasicMaterial color="#f59e0b" />
+            <meshBasicMaterial color="#78AFA2" />
           </mesh>
           <mesh rotation={[-Math.PI / 2, 0, 0]}>
             <ringGeometry args={[1.5, 2.2, 24]} />
-            <meshBasicMaterial color="#f59e0b" transparent opacity={0.6} side={THREE.DoubleSide} />
+            <meshBasicMaterial color="#78AFA2" transparent opacity={0.6} side={THREE.DoubleSide} />
           </mesh>
         </group>
       ))}
 
       {/* Measurement line between the 2 selected points */}
-      {measurementPoints.length === 2 && (
-        <line>
-          <bufferGeometry>
-            <bufferAttribute
-              attach="attributes-position"
-              args={[
-                new Float32Array([
-                  measurementPoints[0].x,
-                  measurementPoints[0].y + 0.3,
-                  measurementPoints[0].z,
-                  measurementPoints[1].x,
-                  measurementPoints[1].y + 0.3,
-                  measurementPoints[1].z,
-                ]),
-                3,
-              ]}
-            />
-          </bufferGeometry>
-          <lineBasicMaterial color="#f59e0b" linewidth={3} />
-        </line>
+      {measurementLineObject && (
+        <primitive object={measurementLineObject} />
       )}
 
       {/* Ground reference grid */}
-      <gridHelper args={[180, 18, "#27272a", "#18181b"]} position={[0, minElevation - 2, 0]} />
+      <gridHelper args={[180, 18, "#26302C", "#121916"]} position={[0, minElevation - 2, 0]} />
     </group>
   );
 }

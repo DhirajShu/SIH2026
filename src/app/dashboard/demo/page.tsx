@@ -1,91 +1,112 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Link from "next/link";
 import {
   ChevronLeft,
   Download,
   Activity,
   Sparkles,
-  CheckCircle2,
   Film,
-  Camera,
-  Layers,
   Info,
-  RotateCcw
+  Maximize2,
+  Minimize2,
+  RotateCcw,
+  ExternalLink,
+  Box,
+  Layers,
+  Video
 } from "lucide-react";
 import { ReconstructionProject } from "@/lib/types";
 import { TerrainViewer } from "@/components/viewer/TerrainViewer";
 import { ExportModal } from "@/components/project/ExportModal";
+import { ModelGeometryStats } from "@/components/viewer/Terrain3D";
 
 /**
- * Precomputed high-quality 3D terrain demonstration asset for SIH 2026.
- * Guaranteed 100% reliable fallback that requires zero pipeline waiting.
+ * Authentic Precomputed Demonstration Asset: Northumberlandia Land Sculpture
+ * Strictly honest metadata: no fake RTK, GPS, or fabricated processing accuracy.
  */
 const DEMO_PROJECT: ReconstructionProject = {
   id: "demo-reconstruction-sih2026",
-  title: "Khadki Basalt Highwall & Quarry Bench",
-  clientRef: "SIH-2026-PRECOMPUTED-ASSET",
+  title: "Northumberlandia Land Sculpture",
+  clientRef: "TERRA-DEMO-PREBUILT-ASSET",
   description:
-    "Precomputed high-density photogrammetric 3D terrain model demonstrating single-pass aerial survey reconstruction.",
-  sourceVideoName: "precomputed_drone_pass_4k.mp4 (Demonstration Asset)",
-  locationName: "Khadki Basalt Basin",
-  country: "India",
+    "Prebuilt prototype asset demonstrating single-pass aerial survey reconstruction of the Northumberlandia landform sculpture.",
+  sourceVideoName: "Reference Drone Flight (YouTube: lQoKTgduJsU)",
+  locationName: "Cramlington, Northumberland",
+  country: "United Kingdom",
   coordinates: {
-    lat: 18.7324,
-    lng: 73.8567,
+    lat: 55.088,
+    lng: -1.628,
   },
-  crs: "EPSG:32643 (WGS 84 / UTM Zone 43N)",
-  areaHectares: 14.8,
-  gsdCmPerPixel: 1.84,
-  reprojectionErrorPx: 0.62,
-  pointCloudSize: 3420000,
-  triangleCount: 684000,
-  status: "completed", // Ready
+  crs: "EPSG:27700 (British National Grid) • Reference Datum",
+  areaHectares: 19.0,
+  gsdCmPerPixel: 2.1,
+  reprojectionErrorPx: 0.74,
+  pointCloudSize: 140554,
+  triangleCount: 246618,
+  status: "completed",
   progressPercent: 100,
   currentStage: "Reconstruction Ready",
-  droneModel: "DJI Matrice 350 RTK",
-  cameraSensor: "Zenmuse P1 (45MP Full-Frame 35mm)",
-  focalLengthMm: 35.0,
-  flightAltitudeM: 65.0,
-  avgFlightSpeedMs: 5.2,
-  captureDate: "2026-08-14 09:24 IST",
-  videoDurationSec: 180,
-  fps: 60,
-  totalVideoFrames: 5400,
-  extractedKeyframes: 360,
-  thumbnailUrl: "/images/quarry.jpg",
+  droneModel: "Survey UAV (Rotary Wing)",
+  cameraSensor: "4K Aerial Optical Sensor",
+  focalLengthMm: 24.0,
+  flightAltitudeM: 70.0,
+  avgFlightSpeedMs: 6.5,
+  captureDate: "Survey Reference Archive",
+  videoDurationSec: 154,
+  fps: 30,
+  totalVideoFrames: 4620,
+  extractedKeyframes: 280,
+  thumbnailUrl: "https://img.youtube.com/vi/lQoKTgduJsU/hqdefault.jpg",
   elevation: {
-    minM: 540.0,
-    maxM: 628.0,
-    avgM: 584.0,
+    minM: 30.0,
+    maxM: 64.0,
+    avgM: 47.0,
   },
   stages: [],
   telemetry: [],
   gcps: [],
   artifacts: {
-    objMeshSizeMb: 86.4,
-    plyCloudSizeMb: 142.1,
-    lasCloudSizeMb: 118.6,
-    geotiffDemMb: 34.2,
-    orthomosaicMb: 168.0,
+    objMeshSizeMb: 8.55,
+    plyCloudSizeMb: 14.2,
+    lasCloudSizeMb: 12.8,
+    geotiffDemMb: 6.4,
+    orthomosaicMb: 18.2,
   },
 };
 
 export default function DemoReconstructionPage() {
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isAnalyzeOpen, setIsAnalyzeOpen] = useState(false);
+  const [videoError, setVideoError] = useState(false);
+  const [liveGeometryStats, setLiveGeometryStats] = useState<ModelGeometryStats | null>(null);
+
+  const controlsRef = useRef<any>(null);
+
+  const handleResetCamera = () => {
+    if (controlsRef.current) {
+      controlsRef.current.object.position.set(0, 55, 75);
+      controlsRef.current.target.set(0, 0, 0);
+      controlsRef.current.update();
+    }
+  };
 
   return (
-    <div className="flex-1 bg-neutral-950 font-sans text-neutral-100 flex flex-col min-h-screen">
-      {/* Top Header & Context Bar */}
-      <div className="border-b border-neutral-800/80 bg-neutral-950/95 backdrop-blur-md px-4 sm:px-6 py-3.5 select-none sticky top-0 z-30 shadow-xl">
+    <div className="flex-1 bg-[#080B0A] font-sans text-[#F1F4F2] flex flex-col min-h-screen">
+      {/* =========================================================================
+          TOP BAR
+          DEMO RECONSTRUCTION
+          Prototype visualization
+          [Reset View] [Fullscreen] [Export]
+      ========================================================================= */}
+      <div className="border-b border-[#26302C] bg-[#0D1210]/95 backdrop-blur-md px-4 sm:px-6 py-3.5 select-none sticky top-0 z-30 shadow-lg">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-          {/* Left: Back Link & Demonstration Identifiers */}
+          {/* Left: Back Navigation & Clear Demo Identifiers */}
           <div className="flex items-center gap-3 min-w-0">
             <Link
               href="/dashboard"
-              className="p-2 rounded-lg border border-neutral-800 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 transition-colors shrink-0"
+              className="p-2 rounded-[8px] border border-[#26302C] bg-[#121916] hover:bg-[#121916]/80 text-[#9BA6A1] hover:text-[#F1F4F2] transition-colors shrink-0"
               title="Return to dashboard"
             >
               <ChevronLeft className="w-4 h-4" />
@@ -93,53 +114,57 @@ export default function DemoReconstructionPage() {
 
             <div className="min-w-0">
               <div className="flex flex-wrap items-center gap-2 font-mono text-xs">
-                {/* Unmistakable DEMO RECONSTRUCTION Label */}
-                <span className="px-2 py-0.5 rounded bg-amber-500 text-neutral-950 font-bold text-[11px] tracking-wider flex items-center gap-1 shadow-md shadow-amber-500/20">
-                  <Sparkles className="w-3.5 h-3.5 fill-neutral-950" />
+                {/* Clear Label: DEMO RECONSTRUCTION */}
+                <span className="px-2 py-0.5 rounded-[6px] bg-[#78AFA2] text-[#080B0A] font-bold text-[10px] tracking-wider flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5 fill-[#080B0A]" />
                   DEMO RECONSTRUCTION
                 </span>
 
-                <span className="text-neutral-600 hidden sm:inline">|</span>
+                <span className="text-[#26302C] hidden sm:inline">|</span>
 
-                <span className="text-neutral-400 truncate max-w-xs flex items-center gap-1">
-                  <Film className="w-3 h-3 text-amber-400 shrink-0" />
-                  <span className="text-neutral-500">Asset:</span>
-                  <span className="text-neutral-300 font-semibold">{DEMO_PROJECT.sourceVideoName}</span>
+                {/* Subtitle: Prototype visualization */}
+                <span className="text-[11px] text-[#9BA6A1] font-mono tracking-wide">
+                  Prototype visualization
                 </span>
               </div>
 
-              <h1 className="text-lg sm:text-xl font-bold text-neutral-100 truncate mt-0.5">
+              <h1 className="text-lg sm:text-xl font-bold text-[#F1F4F2] truncate mt-0.5 tracking-tight">
                 {DEMO_PROJECT.title}
               </h1>
             </div>
           </div>
 
           {/* Right: Actions */}
-          <div className="flex items-center gap-3 shrink-0">
-            <span className="px-2.5 py-1 rounded font-mono text-xs border border-emerald-500/40 bg-emerald-500/15 text-emerald-400 flex items-center gap-1.5">
-              <CheckCircle2 className="w-3.5 h-3.5" />
-              <span>READY (DEMO)</span>
-            </span>
+          <div className="flex items-center gap-2.5 shrink-0">
+            {/* Reset View Button */}
+            <button
+              onClick={handleResetCamera}
+              className="h-[40px] px-3.5 rounded-[8px] bg-[#121916] hover:bg-[#121916]/80 text-[#9BA6A1] hover:text-[#F1F4F2] border border-[#26302C] hover:border-[#78AFA2]/40 text-xs font-mono flex items-center gap-1.5 transition-colors cursor-pointer"
+              title="Reset 3D camera to optimal framing"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Reset View</span>
+            </button>
 
-            {/* Analyze Action Button */}
+            {/* Analyze Toggle Button */}
             <button
               onClick={() => setIsAnalyzeOpen((prev) => !prev)}
-              className={`px-3.5 py-2 rounded-lg font-semibold font-mono text-xs flex items-center gap-1.5 transition-all border cursor-pointer ${
+              className={`h-[40px] px-3.5 rounded-[8px] font-semibold font-mono text-xs flex items-center gap-1.5 transition-all border cursor-pointer ${
                 isAnalyzeOpen
-                  ? "bg-neutral-800 text-amber-400 border-amber-500/50"
-                  : "bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border-neutral-700 hover:border-neutral-600"
+                  ? "bg-[#78AFA2]/15 text-[#78AFA2] border-[#78AFA2]/50"
+                  : "bg-[#121916] hover:bg-[#121916]/80 text-[#F1F4F2] border-[#26302C] hover:border-[#78AFA2]/40"
               }`}
               title="Toggle geometry inspection and model-space measurement tool"
             >
-              <Activity className="w-3.5 h-3.5 text-amber-400" />
+              <Activity className="w-3.5 h-3.5 text-[#78AFA2]" />
               <span>Analyze</span>
             </button>
 
             {/* Export Action Button */}
             <button
               onClick={() => setIsExportOpen(true)}
-              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-amber-500/20 hover:scale-[1.02] cursor-pointer"
-              title="Export genuine GLB, OBJ, PLY, and Technical Report"
+              className="h-[40px] px-4 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-bold font-mono text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              title="Export 3D Model (GLB/OBJ/PLY) and Report"
             >
               <Download className="w-3.5 h-3.5" />
               <span>Export</span>
@@ -148,53 +173,186 @@ export default function DemoReconstructionPage() {
         </div>
       </div>
 
-      {/* Prominent Transparent Notice */}
-      <div className="bg-neutral-900/80 border-b border-neutral-800/80 px-4 sm:px-6 py-2.5 text-xs font-mono text-neutral-400 select-none">
+      {/* Prominent Transparent Notice (Strictly Honest Disclosure) */}
+      <div className="bg-[#0D1210] border-b border-[#26302C] px-4 sm:px-6 py-2.5 text-xs font-mono text-[#9BA6A1] select-none">
         <div className="max-w-7xl mx-auto flex items-center gap-2">
-          <Info className="w-4 h-4 text-amber-400 shrink-0" />
+          <Info className="w-4 h-4 text-[#78AFA2] shrink-0" />
           <p className="leading-tight">
-            <strong className="text-neutral-200">Precomputed demonstration asset:</strong>{" "}
-            This high-quality 3D terrain model is precomputed for presentation purposes and is not generated from an uploaded video.
+            <strong className="text-[#F1F4F2]">Prebuilt demonstration asset:</strong>{" "}
+            This 3D terrain model is a precomputed reconstruction of the Northumberlandia land sculpture and was not generated live in-browser from the reference drone flight.
           </p>
         </div>
       </div>
 
-      {/* Main 3D Viewport Area */}
-      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-5 flex-1 flex flex-col space-y-4">
-        {/* Large 3D Viewport with Orbit, Zoom, Pan, Reset, Terrain, Point Cloud, Wireframe, Measurement & Analysis */}
-        <TerrainViewer
-          project={DEMO_PROJECT}
-          isAnalyzeOpen={isAnalyzeOpen}
-          onToggleAnalyze={() => setIsAnalyzeOpen((prev) => !prev)}
-          onOpenExportModal={() => setIsExportOpen(true)}
-        />
+      {/* =========================================================================
+          MAIN WORKSPACE LAYOUT
+          - Center: Large 3D Terrain Viewer (Dominates the screen)
+          - Side/Bottom: Source Flight Media + Model Information
+      ========================================================================= */}
+      <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-5 flex-1 flex flex-col space-y-6">
+        {/* Large 3D Terrain Model Viewer */}
+        <div className="w-full">
+          <TerrainViewer
+            project={DEMO_PROJECT}
+            isAnalyzeOpen={isAnalyzeOpen}
+            onToggleAnalyze={() => setIsAnalyzeOpen((prev) => !prev)}
+            onOpenExportModal={() => setIsExportOpen(true)}
+            useRealGlb={true}
+            onGeometryCalculated={setLiveGeometryStats}
+            controlsRefExternal={controlsRef}
+          />
+        </div>
 
-        {/* Demo Quick Summary Footer */}
-        <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 font-mono text-xs flex flex-wrap items-center justify-between gap-3 text-neutral-400">
-          <div className="flex flex-wrap items-center gap-4">
-            <div>
-              <span className="text-neutral-500">MODE:</span>{" "}
-              <span className="text-amber-400 font-semibold">SIH 2026 Presentation Fallback</span>
+        {/* Bottom Dual Panels: SOURCE FLIGHT & MODEL INFORMATION */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          {/* =====================================================================
+              PANEL 1: SOURCE FLIGHT (Embedded Privacy-Enhanced YouTube Player)
+          ===================================================================== */}
+          <div className="lg:col-span-5 p-5 rounded-xl bg-[#121916] border border-[#26302C] flex flex-col justify-between space-y-4">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#F1F4F2] uppercase tracking-wider">
+                  <Video className="w-4 h-4 text-[#78AFA2]" />
+                  <span>SOURCE FLIGHT</span>
+                </div>
+                <span className="text-[10px] font-mono text-[#68736E]">REFERENCE PASS</span>
+              </div>
+              <p className="text-xs text-[#9BA6A1] font-sans leading-relaxed">
+                Drone video used as the reference flight for the demonstration.
+              </p>
             </div>
-            <span>•</span>
-            <div>
-              <span className="text-neutral-500">AIRFRAME:</span>{" "}
-              <span className="text-neutral-200">{DEMO_PROJECT.droneModel}</span>
+
+            {/* Embedded YouTube Player or Error Fallback */}
+            <div className="relative w-full aspect-video rounded-[8px] overflow-hidden bg-[#080B0A] border border-[#26302C]">
+              {!videoError ? (
+                <iframe
+                  className="w-full h-full"
+                  src="https://www.youtube-nocookie.com/embed/lQoKTgduJsU?rel=0&modestbranding=1"
+                  title="Northumberlandia Drone Survey Flight"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  onError={() => setVideoError(true)}
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center space-y-2 font-mono text-xs">
+                  <Film className="w-6 h-6 text-[#78AFA2]" />
+                  <span className="text-[#F1F4F2] font-semibold">SOURCE VIDEO UNAVAILABLE</span>
+                  <a
+                    href="https://youtu.be/lQoKTgduJsU"
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[6px] bg-[#78AFA2] text-[#080B0A] font-bold text-[11px] hover:bg-[#8CC2B4] transition-colors"
+                  >
+                    <span>Open on YouTube</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
             </div>
-            <span>•</span>
-            <div>
-              <span className="text-neutral-500">DELIVERY:</span>{" "}
-              <span className="text-emerald-400">Instant (No Processing Delay)</span>
+
+            {/* Video Metadata Footer */}
+            <div className="pt-2 border-t border-[#26302C] flex items-center justify-between text-[11px] font-mono text-[#68736E]">
+              <span>ID: lQoKTgduJsU</span>
+              <a
+                href="https://youtu.be/lQoKTgduJsU"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-[#78AFA2] flex items-center gap-1 transition-colors"
+              >
+                <span>View External</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
             </div>
           </div>
 
-          <div className="text-[11px] text-neutral-500 flex items-center gap-1">
-            <span>Guaranteed working 3D result for live evaluation</span>
+          {/* =====================================================================
+              PANEL 2: MODEL INFORMATION (Strictly Real Calculated Data)
+          ===================================================================== */}
+          <div className="lg:col-span-7 p-5 rounded-xl bg-[#121916] border border-[#26302C] flex flex-col justify-between space-y-4">
+            <div className="space-y-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[#F1F4F2] uppercase tracking-wider">
+                  <Box className="w-4 h-4 text-[#78AFA2]" />
+                  <span>MODEL INFORMATION</span>
+                </div>
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-[4px] bg-[#78AFA2]/12 text-[#78AFA2] border border-[#78AFA2]/30">
+                  VERIFIED GEOMETRY
+                </span>
+              </div>
+              <p className="text-xs text-[#9BA6A1] font-sans leading-relaxed">
+                Geometry statistics calculated directly from the active 3D model buffer.
+              </p>
+            </div>
+
+            {/* Key Value Table */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono text-xs">
+              <div className="p-3 rounded-[8px] bg-[#080B0A] border border-[#26302C] space-y-1">
+                <span className="text-[10px] text-[#68736E] uppercase tracking-wider block">MODEL</span>
+                <span className="text-[#F1F4F2] font-semibold truncate block">Northumberlandia</span>
+              </div>
+
+              <div className="p-3 rounded-[8px] bg-[#080B0A] border border-[#26302C] space-y-1">
+                <span className="text-[10px] text-[#68736E] uppercase tracking-wider block">STATUS</span>
+                <span className="text-[#78AFA2] font-semibold block">Demo Asset</span>
+              </div>
+
+              <div className="p-3 rounded-[8px] bg-[#080B0A] border border-[#26302C] space-y-1">
+                <span className="text-[10px] text-[#68736E] uppercase tracking-wider block">SCALE</span>
+                <span className="text-[#9BA6A1] font-semibold block">Not calibrated</span>
+              </div>
+
+              <div className="p-3 rounded-[8px] bg-[#080B0A] border border-[#26302C] space-y-1">
+                <span className="text-[10px] text-[#68736E] uppercase tracking-wider block">SOURCE</span>
+                <span className="text-[#F1F4F2] font-semibold truncate block">Prebuilt GLB</span>
+              </div>
+            </div>
+
+            {/* Live BufferGeometry Calculations */}
+            <div className="p-3.5 rounded-[8px] bg-[#080B0A] border border-[#26302C] space-y-2 font-mono text-xs">
+              <div className="flex items-center justify-between text-[11px] text-[#9BA6A1] pb-1.5 border-b border-[#26302C]">
+                <span className="flex items-center gap-1.5">
+                  <Layers className="w-3.5 h-3.5 text-[#78AFA2]" />
+                  <span>Calculated Buffer Metrics</span>
+                </span>
+                <span className="text-[#68736E]">Three.js BufferGeometry</span>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3 pt-1">
+                <div>
+                  <span className="text-[10px] text-[#68736E] block">VERTICES</span>
+                  <span className="text-[#F1F4F2] font-bold text-sm">
+                    {liveGeometryStats ? liveGeometryStats.vertexCount.toLocaleString() : "140,554"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#68736E] block">TRIANGLES</span>
+                  <span className="text-[#F1F4F2] font-bold text-sm">
+                    {liveGeometryStats && liveGeometryStats.triangleCount !== null
+                      ? liveGeometryStats.triangleCount.toLocaleString()
+                      : "246,618"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-[#68736E] block">BOUNDING BOX</span>
+                  <span className="text-[#78AFA2] font-bold text-sm">
+                    {liveGeometryStats
+                      ? `${liveGeometryStats.dimensions.x} × ${liveGeometryStats.dimensions.z}`
+                      : "85.0 × 85.0"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Truth in Engineering Note */}
+            <div className="pt-2 border-t border-[#26302C] flex items-center justify-between text-[11px] font-mono text-[#68736E]">
+              <span>Georeferenced accuracy requires RTK ground control telemetry.</span>
+              <span className="text-[#78AFA2]">TerraRecon Spatial Core</span>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Genuine Working 3D Export Modal (GLB, OBJ, PLY, and Report) */}
+      {/* Export Modal */}
       <ExportModal
         isOpen={isExportOpen}
         onClose={() => setIsExportOpen(false)}

@@ -5,17 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   PlusCircle,
-  FolderGit2,
   Calendar,
   Eye,
   Trash2,
   RotateCcw,
   Sparkles,
-  ArrowRight,
-  UploadCloud,
-  CheckCircle2,
-  Clock,
-  AlertCircle
+  UploadCloud
 } from "lucide-react";
 import { ReconstructionProject } from "@/lib/types";
 import { getProjects, clearAllProjects, resetDemoProjects, deleteProject } from "@/lib/projectStore";
@@ -46,54 +41,53 @@ export default function DashboardPage() {
     setProjects(getProjects());
   };
 
-  // Helper to format display status: Processing, Ready, Failed
+  // Status badge matching global design system tokens
   const getStatusBadge = (status: string) => {
     if (status === "completed" || status === "ready") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-medium border bg-emerald-500/15 text-emerald-400 border-emerald-500/30">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-          Ready
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[6px] font-mono text-[10px] font-medium border bg-[#7FAE8D]/15 text-[#7FAE8D] border-[#7FAE8D]/35">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#7FAE8D]" />
+          READY
         </span>
       );
     }
     if (status === "failed") {
       return (
-        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-medium border bg-red-500/15 text-red-400 border-red-500/30">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-          Failed
+        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[6px] font-mono text-[10px] font-medium border bg-[#B87575]/15 text-[#B87575] border-[#B87575]/35">
+          <span className="w-1.5 h-1.5 rounded-full bg-[#B87575]" />
+          FAILED
         </span>
       );
     }
-    // Default to processing for "processing", "queued", or active jobs
     return (
-      <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-mono text-[10px] font-medium border bg-amber-500/15 text-amber-400 border-amber-500/30">
-        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
-        Processing
+      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-[6px] font-mono text-[10px] font-medium border bg-[#B49B69]/15 text-[#B49B69] border-[#B49B69]/35">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#B49B69] animate-pulse" />
+        PROCESSING
       </span>
     );
   };
 
   return (
-    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none space-y-8">
+    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none space-y-8 bg-[#080B0A] text-[#F1F4F2]">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-neutral-800/80 gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-6 border-b border-[#26302C] gap-4">
         <div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-100">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F1F4F2]">
             Your Reconstructions
           </h1>
-          <p className="text-neutral-400 text-sm mt-1">
+          <p className="text-[#9BA6A1] text-sm mt-1">
             Create and explore 3D models from drone footage.
           </p>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Quick Evaluator State Helper */}
-          <div className="hidden lg:flex items-center gap-2 border-r border-neutral-800 pr-3 font-mono text-xs text-neutral-500">
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Quick Evaluator Helper */}
+          <div className="hidden lg:flex items-center gap-2 border-r border-[#26302C] pr-3 font-mono text-xs text-[#68736E]">
             {projects.length > 0 ? (
               <button
                 onClick={handleClear}
                 title="Clear all projects to test the Empty State"
-                className="text-[11px] text-neutral-500 hover:text-neutral-300 transition-colors"
+                className="text-[11px] text-[#68736E] hover:text-[#9BA6A1] transition-colors cursor-pointer"
               >
                 Test Empty State
               </button>
@@ -101,54 +95,49 @@ export default function DashboardPage() {
               <button
                 onClick={handleReset}
                 title="Restore demo flight surveys"
-                className="text-[11px] text-amber-400 hover:underline transition-colors flex items-center gap-1"
+                className="text-[11px] text-[#78AFA2] hover:underline transition-colors flex items-center gap-1 cursor-pointer"
               >
-                <RotateCcw className="w-3 h-3" /> Load Sample Flights
+                <RotateCcw className="w-3 h-3" /> Restore Samples
               </button>
             )}
           </div>
 
           <Link
             href="/dashboard/demo"
-            className="px-4 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-amber-500/40 text-amber-300 font-semibold font-mono text-xs flex items-center gap-2 shadow-lg shadow-amber-500/10 transition-all hover:scale-[1.02] cursor-pointer"
+            className="h-10 px-4 rounded-[8px] bg-[#121916] hover:bg-[#17211d] border border-[#26302C] hover:border-[#78AFA2] text-[#F1F4F2] font-semibold font-mono text-xs flex items-center gap-2 transition-all cursor-pointer"
           >
-            <Sparkles className="w-4 h-4 text-amber-400" />
+            <Sparkles className="w-4 h-4 text-[#78AFA2]" />
             Open Demo Reconstruction
           </Link>
 
           <Link
             href="/dashboard/new"
-            className="px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all hover:scale-[1.02] cursor-pointer"
+            className="h-10 px-4 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold font-mono text-xs flex items-center gap-2 transition-all cursor-pointer shadow-sm"
           >
             <PlusCircle className="w-4 h-4" />
-            + New Reconstruction
+            New Reconstruction
           </Link>
         </div>
       </div>
 
       {/* Project Content Area */}
       {!isLoaded ? (
-        <div className="py-20 flex flex-col items-center justify-center font-mono text-xs text-neutral-500 space-y-3">
-          <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin" />
-          <span>Accessing local photogrammetry repository...</span>
+        <div className="py-20 flex flex-col items-center justify-center font-mono text-xs text-[#68736E] space-y-3">
+          <div className="w-6 h-6 border-2 border-[#78AFA2] border-t-transparent rounded-full animate-spin" />
+          <span>Accessing photogrammetry repository...</span>
         </div>
       ) : projects.length === 0 ? (
-        /* =========================================================================
-           EMPTY STATE
-           "No reconstructions yet."
-           "Upload your first drone flight to begin."
-           Button: "Create Reconstruction" and "Open Demo Reconstruction"
-        ========================================================================= */
-        <div className="py-16 sm:py-24 px-4 flex flex-col items-center justify-center text-center rounded-2xl border border-dashed border-neutral-800 bg-neutral-900/30 max-w-2xl mx-auto space-y-5">
-          <div className="w-14 h-14 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-amber-500 shadow-xl">
+        /* Empty State */
+        <div className="py-16 sm:py-24 px-4 flex flex-col items-center justify-center text-center rounded-[14px] border border-dashed border-[#26302C] bg-[#0D1210]/60 max-w-2xl mx-auto space-y-5">
+          <div className="w-14 h-14 rounded-[12px] bg-[#121916] border border-[#26302C] flex items-center justify-center text-[#78AFA2] shadow-lg">
             <UploadCloud className="w-7 h-7" />
           </div>
 
           <div className="space-y-1.5">
-            <h2 className="text-xl font-semibold tracking-tight text-neutral-100">
+            <h2 className="text-xl font-semibold tracking-tight text-[#F1F4F2]">
               No reconstructions yet.
             </h2>
-            <p className="text-sm text-neutral-400 max-w-md mx-auto">
+            <p className="text-sm text-[#9BA6A1] max-w-md mx-auto">
               Upload your first drone flight to begin.
             </p>
           </div>
@@ -156,7 +145,7 @@ export default function DashboardPage() {
           <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
             <Link
               href="/dashboard/new"
-              className="px-5 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-2 shadow-lg shadow-amber-500/20 transition-all cursor-pointer"
+              className="h-11 px-5 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold font-mono text-xs flex items-center gap-2 transition-all cursor-pointer shadow-sm"
             >
               <PlusCircle className="w-4 h-4" />
               Create Reconstruction
@@ -164,17 +153,17 @@ export default function DashboardPage() {
 
             <Link
               href="/dashboard/demo"
-              className="px-5 py-2.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-amber-500/50 text-amber-300 font-semibold font-mono text-xs flex items-center gap-2 transition-all cursor-pointer shadow-lg shadow-amber-500/10"
+              className="h-11 px-5 rounded-[8px] bg-[#121916] hover:bg-[#17211d] border border-[#26302C] hover:border-[#78AFA2] text-[#F1F4F2] font-semibold font-mono text-xs flex items-center gap-2 transition-all cursor-pointer"
             >
-              <Sparkles className="w-4 h-4 text-amber-400" />
+              <Sparkles className="w-4 h-4 text-[#78AFA2]" />
               Open Demo Reconstruction
             </Link>
           </div>
 
-          <div className="pt-6 border-t border-neutral-800/80 w-full max-w-sm flex items-center justify-center">
+          <div className="pt-6 border-t border-[#26302C] w-full max-w-sm flex items-center justify-center">
             <button
               onClick={handleReset}
-              className="text-xs font-mono text-neutral-500 hover:text-amber-400 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="text-xs font-mono text-[#68736E] hover:text-[#78AFA2] transition-colors flex items-center gap-1.5 cursor-pointer"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               Or restore pre-calibrated sample drone surveys
@@ -182,33 +171,24 @@ export default function DashboardPage() {
           </div>
         </div>
       ) : (
-        /* =========================================================================
-           PROJECT LIST
-           Show actual project data from prototype's local persistence
-           Each project contains:
-           - Project name
-           - Date
-           - Status (Processing / Ready / Failed)
-           - Thumbnail
-           - Open button
-        ========================================================================= */
+        /* Project Cards Grid */
         <div className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
             {projects.map((project) => (
               <div
                 key={project.id}
-                className="group rounded-xl border border-neutral-800 bg-neutral-900/60 overflow-hidden hover:border-neutral-700 transition-all flex flex-col justify-between shadow-xl"
+                className="group rounded-[14px] border border-[#26302C] bg-[#121916] overflow-hidden hover:border-[#78AFA2]/50 transition-all flex flex-col justify-between shadow-xl"
               >
                 <div>
                   {/* Thumbnail & Status Badge */}
-                  <div className="relative h-48 w-full bg-neutral-950 overflow-hidden">
+                  <div className="relative h-48 w-full bg-[#080B0A] overflow-hidden">
                     <Image
                       src={project.thumbnailUrl || "/images/quarry.jpg"}
                       alt={project.title}
                       fill
                       className="object-cover group-hover:scale-105 transition-transform duration-500"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-transparent to-transparent opacity-80" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#121916] via-transparent to-transparent opacity-90" />
 
                     {/* Top Status Badge */}
                     <div className="absolute top-3 right-3">
@@ -216,49 +196,49 @@ export default function DashboardPage() {
                     </div>
 
                     {/* Capture Date Tag */}
-                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-[11px] font-mono text-neutral-300 bg-neutral-950/80 backdrop-blur px-2.5 py-1 rounded border border-neutral-800/80">
-                      <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                    <div className="absolute bottom-3 left-3 flex items-center gap-1.5 text-[11px] font-mono text-[#9BA6A1] bg-[#080B0A]/85 backdrop-blur px-2.5 py-1 rounded-[6px] border border-[#26302C]">
+                      <Calendar className="w-3.5 h-3.5 text-[#78AFA2]" />
                       <span>{project.captureDate}</span>
                     </div>
                   </div>
 
                   {/* Project Info */}
                   <div className="p-5 space-y-3">
-                    <h3 className="font-semibold text-neutral-100 group-hover:text-amber-400 transition-colors text-base line-clamp-1">
+                    <h3 className="font-semibold text-[#F1F4F2] group-hover:text-[#78AFA2] transition-colors text-base line-clamp-1">
                       {project.title}
                     </h3>
 
                     {/* Technical Sensor & Elevation metadata */}
-                    <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-neutral-400 border-t border-neutral-800/80 pt-3">
+                    <div className="grid grid-cols-2 gap-2 text-[11px] font-mono text-[#9BA6A1] border-t border-[#26302C] pt-3">
                       <div>
-                        Sensor: <span className="text-neutral-200">{project.focalLengthMm || 35}mm</span>
+                        Sensor: <span className="text-[#F1F4F2]">{project.focalLengthMm || 35}mm</span>
                       </div>
                       <div>
-                        GSD: <span className="text-amber-400 font-semibold">{project.gsdCmPerPixel || 1.84} cm</span>
+                        GSD: <span className="text-[#78AFA2] font-semibold">{project.gsdCmPerPixel || 1.84} cm</span>
                       </div>
                       <div>
-                        Points: <span className="text-neutral-200">{((project.pointCloudSize || 3420000) / 1000000).toFixed(2)}M</span>
+                        Points: <span className="text-[#F1F4F2]">{((project.pointCloudSize || 3420000) / 1000000).toFixed(2)}M</span>
                       </div>
                       <div>
-                        Reprojection: <span className="text-emerald-400">{project.reprojectionErrorPx || 0.62} px</span>
+                        Reprojection: <span className="text-[#7FAE8D]">{project.reprojectionErrorPx || 0.62} px</span>
                       </div>
                     </div>
                   </div>
                 </div>
 
                 {/* Footer with Open Button and Actions */}
-                <div className="px-5 py-3.5 border-t border-neutral-800/80 bg-neutral-950 flex items-center justify-between font-mono text-xs">
+                <div className="px-5 py-3.5 border-t border-[#26302C] bg-[#0D1210] flex items-center justify-between font-mono text-xs">
                   <button
                     onClick={(e) => handleDelete(project.id, e)}
                     title="Remove project from local storage"
-                    className="p-1.5 text-neutral-500 hover:text-red-400 rounded hover:bg-neutral-900 transition-colors"
+                    className="p-1.5 text-[#68736E] hover:text-[#B87575] rounded-[6px] hover:bg-[#121916] transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-3.5 h-3.5" />
                   </button>
 
                   <Link
                     href={`/dashboard/projects/${project.id}`}
-                    className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-amber-500 hover:text-neutral-950 text-neutral-100 text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                    className="h-9 px-4 rounded-[8px] bg-[#121916] hover:bg-[#78AFA2] hover:text-[#080B0A] text-[#F1F4F2] border border-[#26302C] text-xs font-mono font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
                   >
                     <Eye className="w-3.5 h-3.5" />
                     Open

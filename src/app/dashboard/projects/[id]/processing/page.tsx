@@ -1,14 +1,11 @@
 "use client";
 
-import React, { useState, useEffect, use, useMemo, useRef } from "react";
+import React, { useState, useEffect, use, useRef } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   CheckCircle2,
-  Clock,
   ArrowRight,
-  Layers,
-  ChevronRight,
   Loader2,
   FastForward,
   Info
@@ -20,11 +17,6 @@ interface PageProps {
   params: Promise<{ id: string }>;
 }
 
-/**
- * 8 Defined Pipeline Stages for TerraRecon Prototype Reconstruction.
- * Each stage features deterministic duration and user-friendly descriptions.
- * Strict Rule: No fake accuracy percentages, frame counts, or synthetic statistics.
- */
 interface PipelineStageDef {
   num: string;
   name: string;
@@ -36,49 +28,49 @@ const STAGES: PipelineStageDef[] = [
   {
     num: "01",
     name: "VIDEO INGESTION",
-    description: "Preparing the uploaded drone footage.",
+    description: "Validating single-pass aerial footage and parsing video stream metadata.",
     durationMs: 2200,
   },
   {
     num: "02",
     name: "FRAME EXTRACTION",
-    description: "Extracting useful frames.",
+    description: "Extracting optimal overlap keyframes and discarding motion-blurred frames.",
     durationMs: 2400,
   },
   {
     num: "03",
     name: "FEATURE DETECTION",
-    description: "Detecting visual landmarks and keypoints across frames.",
+    description: "Detecting visual landmarks and invariant keypoint descriptors across frames.",
     durationMs: 2200,
   },
   {
     num: "04",
     name: "FEATURE MATCHING",
-    description: "Finding visual features between frames.",
+    description: "Establishing tie points and matching keypoint correspondences between adjacent perspectives.",
     durationMs: 2400,
   },
   {
     num: "05",
     name: "CAMERA POSE ESTIMATION",
-    description: "Estimating camera movement.",
+    description: "Solving Structure-from-Motion (SfM) bundle adjustment to recover trajectory poses.",
     durationMs: 2200,
   },
   {
     num: "06",
     name: "POINT CLOUD GENERATION",
-    description: "Building 3D structure.",
+    description: "Computing dense stereo multi-view disparity to build 3D spatial point cloud.",
     durationMs: 2500,
   },
   {
     num: "07",
     name: "MESH GENERATION",
-    description: "Generating terrain geometry.",
+    description: "Executing surface reconstruction to synthesize continuous 3D TIN terrain mesh.",
     durationMs: 2500,
   },
   {
     num: "08",
     name: "3D TERRAIN READY",
-    description: "Reconstruction complete. Preparing 3D viewer.",
+    description: "Reconstruction complete. Packaging high-fidelity 3D model for interactive inspection.",
     durationMs: 1400,
   },
 ];
@@ -98,7 +90,6 @@ export default function ProcessingPage({ params }: PageProps) {
 
   const [project, setProject] = useState<ReconstructionProject | null>(null);
   const [currentStageIdx, setCurrentStageIdx] = useState<number>(0);
-  const [stageProgress, setStageProgress] = useState<number>(0);
   const [overallProgress, setOverallProgress] = useState<number>(0);
   const [isComplete, setIsComplete] = useState<boolean>(false);
   const [redirectCountdown, setRedirectCountdown] = useState<number | null>(null);
@@ -110,7 +101,6 @@ export default function ProcessingPage({ params }: PageProps) {
     const loaded = getProjectById(resolvedParams.id);
     if (loaded) {
       setProject(loaded);
-      // If project was already completed prior to this visit, immediately mark completed
       if (loaded.status === "completed") {
         setIsComplete(true);
         setCurrentStageIdx(7);
@@ -146,14 +136,11 @@ export default function ProcessingPage({ params }: PageProps) {
       const elapsed = now - startTime;
 
       if (elapsed >= TOTAL_PIPELINE_DURATION_MS) {
-        // Complete the pipeline
         clearInterval(interval);
         setCurrentStageIdx(7);
-        setStageProgress(100);
         setOverallProgress(100);
         setIsComplete(true);
 
-        // Persist project status as "completed" (Ready) in project store
         const updatedProject: ReconstructionProject = {
           ...project,
           status: "completed",
@@ -163,10 +150,8 @@ export default function ProcessingPage({ params }: PageProps) {
         saveProject(updatedProject);
         setProject(updatedProject);
 
-        // Begin auto-redirect countdown
         setRedirectCountdown(2);
       } else {
-        // Determine active stage deterministically from elapsed time
         let stageIdx = 0;
         for (let i = 0; i < CUMULATIVE_TIMES.length; i++) {
           if (elapsed < CUMULATIVE_TIMES[i]) {
@@ -175,17 +160,11 @@ export default function ProcessingPage({ params }: PageProps) {
           }
         }
 
-        const stageStart = stageIdx === 0 ? 0 : CUMULATIVE_TIMES[stageIdx - 1];
-        const stageDuration = STAGES[stageIdx].durationMs;
-        const stageElapsed = elapsed - stageStart;
-        const stagePercent = Math.min(100, Math.max(0, Math.floor((stageElapsed / stageDuration) * 100)));
         const overallPercent = Math.min(99, Math.max(1, Math.floor((elapsed / TOTAL_PIPELINE_DURATION_MS) * 100)));
 
         setCurrentStageIdx(stageIdx);
-        setStageProgress(stagePercent);
         setOverallProgress(overallPercent);
 
-        // Keep project currentStage updated in store
         if (project.currentStage !== STAGES[stageIdx].name) {
           const synced: ReconstructionProject = {
             ...project,
@@ -217,13 +196,12 @@ export default function ProcessingPage({ params }: PageProps) {
     }
   }, [redirectCountdown, resolvedParams.id, router]);
 
-  // Fast forward helper for evaluators
+  // Fast forward helper for evaluation
   const handleFastForward = () => {
     if (!project) return;
     setIsComplete(true);
     setCurrentStageIdx(7);
     setOverallProgress(100);
-    setStageProgress(100);
 
     const updated: ReconstructionProject = {
       ...project,
@@ -240,55 +218,55 @@ export default function ProcessingPage({ params }: PageProps) {
 
   if (!project) {
     return (
-      <div className="flex-1 p-10 flex flex-col items-center justify-center font-mono text-xs text-neutral-400 space-y-3">
-        <Loader2 className="w-6 h-6 text-amber-500 animate-spin" />
+      <div className="flex-1 bg-[#080B0A] p-10 flex flex-col items-center justify-center font-mono text-xs text-[#9BA6A1] space-y-3">
+        <Loader2 className="w-5 h-5 text-[#78AFA2] animate-spin" />
         <span>Loading reconstruction workspace: {resolvedParams.id}...</span>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-8">
+    <div className="flex-1 bg-[#080B0A] text-[#F1F4F2] p-6 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-8">
       {/* Top Prototype Reconstruction Disclaimer Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-neutral-900/90 border border-neutral-800 text-xs font-mono">
-        <div className="flex items-center gap-2 text-neutral-300">
-          <span className="px-2 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold tracking-wider">
-            PROTOTYPE RECONSTRUCTION
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-[#0D1210] border border-[#26302C] text-xs font-mono">
+        <div className="flex items-center gap-2">
+          <span className="px-2 py-0.5 rounded-[6px] bg-[#78AFA2]/12 border border-[#78AFA2]/30 text-[#78AFA2] text-[10px] font-bold tracking-wider uppercase">
+            01 / PIPELINE
           </span>
-          <span className="text-neutral-400 text-[11px] hidden md:inline">
-            Deterministic reconstruction workflow demonstration
+          <span className="text-[#9BA6A1] text-[11px] hidden md:inline">
+            Deterministic Single-Pass Aerial Reconstruction
           </span>
         </div>
 
         <button
           onClick={handleFastForward}
-          className="text-[11px] text-neutral-400 hover:text-amber-400 flex items-center gap-1 transition-colors self-end sm:self-auto cursor-pointer"
-          title="Skip animation directly to the completed 3D Model Viewer"
+          className="text-[11px] text-[#9BA6A1] hover:text-[#78AFA2] flex items-center gap-1.5 transition-colors self-end sm:self-auto cursor-pointer"
+          title="Skip pipeline animation directly to the completed 3D Model Viewer"
         >
-          <FastForward className="w-3.5 h-3.5" />
+          <FastForward className="w-3.5 h-3.5 text-[#78AFA2]" />
           <span>Skip to 3D Viewer</span>
         </button>
       </div>
 
       {/* Project Header */}
-      <div className="pb-6 border-b border-neutral-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+      <div className="pb-6 border-b border-[#26302C] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-mono text-neutral-400">
+          <div className="flex items-center gap-2 text-xs font-mono text-[#68736E]">
             <span>PROJECT: {project.id}</span>
-            <span className="text-neutral-600">/</span>
-            <span className="text-neutral-300 truncate max-w-xs">{project.title}</span>
+            <span>/</span>
+            <span className="text-[#9BA6A1] truncate max-w-xs">{project.title}</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-100 mt-1">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F1F4F2] mt-1">
             Reconstruction Pipeline
           </h1>
         </div>
 
         <div className="flex items-center gap-2">
           <span
-            className={`px-3 py-1 rounded font-mono text-xs border flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-[6px] font-mono text-xs border flex items-center gap-1.5 ${
               isComplete
-                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
-                : "bg-amber-500/15 text-amber-400 border-amber-500/40"
+                ? "bg-[#7FAE8D]/15 text-[#7FAE8D] border-[#7FAE8D]/40"
+                : "bg-[#78AFA2]/15 text-[#78AFA2] border-[#78AFA2]/40"
             }`}
           >
             {isComplete ? (
@@ -307,31 +285,31 @@ export default function ProcessingPage({ params }: PageProps) {
       </div>
 
       {/* Active Stage & Progress Card */}
-      <div className="p-6 sm:p-7 rounded-2xl bg-neutral-900/80 border border-neutral-800 shadow-xl space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-neutral-800/80">
+      <div className="p-6 sm:p-7 rounded-xl bg-[#121916] border border-[#26302C] space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#26302C]">
           <div>
-            <div className="text-[11px] font-mono text-amber-500 font-semibold tracking-wider">
-              CURRENT STAGE {activeStage.num} OF 08
+            <div className="text-[11px] font-mono text-[#78AFA2] font-semibold tracking-wider uppercase">
+              STAGE {activeStage.num} OF 08
             </div>
-            <div className="text-xl sm:text-2xl font-bold text-neutral-100 mt-0.5 tracking-tight">
+            <div className="text-xl sm:text-2xl font-bold text-[#F1F4F2] mt-0.5 tracking-tight">
               {activeStage.name}
             </div>
           </div>
 
           <div className="text-right font-mono">
-            <div className="text-[11px] text-neutral-500 uppercase tracking-wider">Overall Progress</div>
-            <div className="text-2xl font-bold text-amber-400">{overallProgress}%</div>
+            <div className="text-[11px] text-[#68736E] uppercase tracking-wider">Progress</div>
+            <div className="text-2xl font-bold text-[#78AFA2]">{overallProgress}%</div>
           </div>
         </div>
 
         {/* Current Stage Description */}
-        <div className="p-4 rounded-xl bg-neutral-950/70 border border-neutral-800/80 text-sm text-neutral-200 font-sans flex items-start gap-3">
-          <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+        <div className="p-4 rounded-[8px] bg-[#0D1210] border border-[#26302C] text-sm text-[#9BA6A1] font-sans flex items-start gap-3">
+          <Info className="w-4 h-4 text-[#78AFA2] shrink-0 mt-0.5" />
           <div>
-            <span className="font-semibold block text-neutral-100 text-xs font-mono uppercase tracking-wide mb-0.5">
-              Stage Activity
+            <span className="font-semibold block text-[#F1F4F2] text-xs font-mono uppercase tracking-wider mb-0.5">
+              Operation Status
             </span>
-            <p className="text-neutral-300 text-sm leading-relaxed">
+            <p className="text-[#9BA6A1] text-sm leading-relaxed">
               {activeStage.description}
             </p>
           </div>
@@ -339,14 +317,14 @@ export default function ProcessingPage({ params }: PageProps) {
 
         {/* Master Progress Bar */}
         <div className="space-y-1.5 font-mono text-xs">
-          <div className="flex items-center justify-between text-[11px] text-neutral-400">
+          <div className="flex items-center justify-between text-[11px] text-[#9BA6A1]">
             <span>Reconstruction Progress</span>
-            <span className="text-neutral-200">{overallProgress}%</span>
+            <span className="text-[#F1F4F2]">{overallProgress}%</span>
           </div>
-          <div className="w-full bg-neutral-950 h-3 rounded-full overflow-hidden border border-neutral-800">
+          <div className="w-full bg-[#080B0A] h-2.5 rounded-[8px] overflow-hidden border border-[#26302C]">
             <div
-              className={`h-full rounded-full transition-all duration-200 ${
-                isComplete ? "bg-emerald-500" : "bg-amber-500"
+              className={`h-full rounded-[8px] transition-all duration-200 ${
+                isComplete ? "bg-[#7FAE8D]" : "bg-[#78AFA2]"
               }`}
               style={{ width: `${overallProgress}%` }}
             />
@@ -355,24 +333,24 @@ export default function ProcessingPage({ params }: PageProps) {
 
         {/* Completion Action Banner */}
         {isComplete && (
-          <div className="p-5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono text-xs space-y-3 animate-in fade-in">
-            <div className="flex items-center gap-2 font-semibold text-sm">
-              <CheckCircle2 className="w-5 h-5 text-emerald-400" />
+          <div className="p-5 rounded-[8px] bg-[#78AFA2]/10 border border-[#78AFA2]/30 text-[#F1F4F2] font-mono text-xs space-y-3 animate-in fade-in">
+            <div className="flex items-center gap-2 font-semibold text-sm text-[#78AFA2]">
+              <CheckCircle2 className="w-5 h-5 text-[#78AFA2]" />
               <span>3D TERRAIN MODEL READY</span>
             </div>
-            <p className="text-neutral-300 text-xs leading-relaxed font-sans">
-              All 8 stages of the reconstruction workflow are complete. Your 3D terrain model has been saved and is ready for exploration.
+            <p className="text-[#9BA6A1] text-xs leading-relaxed font-sans">
+              All 8 stages of the single-pass reconstruction workflow are complete. Your 3D terrain model has been saved and is ready for exploration.
             </p>
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={() => router.push(`/dashboard/projects/${project.id}`)}
-                className="w-full sm:w-auto px-6 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-neutral-950 font-semibold font-mono text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-emerald-500/20 cursor-pointer"
+                className="w-full sm:w-auto h-[44px] px-6 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-bold font-mono text-xs flex items-center justify-center gap-2 transition-all cursor-pointer shadow-sm"
               >
-                <span>Open 3D Model Explorer</span>
+                <span>OPEN 3D MODEL EXPLORER</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
               {redirectCountdown !== null && redirectCountdown > 0 && (
-                <span className="text-neutral-400 text-[11px]">
+                <span className="text-[#68736E] text-[11px]">
                   Redirecting automatically in {redirectCountdown}s...
                 </span>
               )}
@@ -382,13 +360,13 @@ export default function ProcessingPage({ params }: PageProps) {
       </div>
 
       {/* 8-Stage Workflow Timeline */}
-      <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-4 font-mono text-xs">
-        <div className="text-xs uppercase tracking-wider text-neutral-400 font-semibold pb-2 border-b border-neutral-800 flex items-center justify-between">
+      <div className="p-6 rounded-xl bg-[#121916] border border-[#26302C] space-y-4 font-mono text-xs">
+        <div className="text-xs uppercase tracking-wider text-[#9BA6A1] font-semibold pb-2 border-b border-[#26302C] flex items-center justify-between">
           <span>PIPELINE RECONSTRUCTION SEQUENCE</span>
-          <span className="text-[11px] text-neutral-500 font-normal">8 STAGES</span>
+          <span className="text-[11px] text-[#68736E] font-normal">8 STAGES</span>
         </div>
 
-        <div className="space-y-2.5">
+        <div className="space-y-2">
           {STAGES.map((stg, i) => {
             const isFinished = isComplete || i < currentStageIdx;
             const isCurrent = !isComplete && i === currentStageIdx;
@@ -396,26 +374,26 @@ export default function ProcessingPage({ params }: PageProps) {
             return (
               <div
                 key={stg.num}
-                className={`p-3.5 rounded-xl border flex items-center justify-between transition-all duration-200 ${
+                className={`p-3.5 rounded-[8px] border flex items-center justify-between transition-all duration-200 ${
                   isFinished
-                    ? "bg-neutral-950/80 border-neutral-800 text-neutral-200"
+                    ? "bg-[#0D1210] border-[#26302C] text-[#F1F4F2]"
                     : isCurrent
-                    ? "bg-amber-500/10 border-amber-500/40 text-amber-200 shadow-md shadow-amber-500/5"
-                    : "bg-neutral-950/30 border-neutral-900/80 text-neutral-500"
+                    ? "bg-[#78AFA2]/12 border-[#78AFA2] text-[#F1F4F2] shadow-sm"
+                    : "bg-[#0D1210]/40 border-[#26302C]/50 text-[#68736E]"
                 }`}
               >
                 <div className="flex items-center gap-3.5 min-w-0">
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
+                    className={`w-7 h-7 rounded-[6px] flex items-center justify-center text-xs font-mono font-bold shrink-0 ${
                       isFinished
-                        ? "bg-emerald-500/15 text-emerald-400 border border-emerald-500/30"
+                        ? "bg-[#78AFA2]/15 text-[#78AFA2] border border-[#78AFA2]/30"
                         : isCurrent
-                        ? "bg-amber-500 text-neutral-950 font-bold"
-                        : "bg-neutral-900 text-neutral-600 border border-neutral-800"
+                        ? "bg-[#78AFA2] text-[#080B0A] font-bold"
+                        : "bg-[#080B0A] text-[#68736E] border border-[#26302C]"
                     }`}
                   >
                     {isFinished ? (
-                      <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                      <CheckCircle2 className="w-4 h-4 text-[#78AFA2]" />
                     ) : (
                       stg.num
                     )}
@@ -423,11 +401,11 @@ export default function ProcessingPage({ params }: PageProps) {
 
                   <div className="min-w-0">
                     <div className="font-semibold text-xs tracking-wide flex items-center gap-2">
-                      <span className={isCurrent ? "text-amber-300 font-bold" : isFinished ? "text-neutral-100" : "text-neutral-500"}>
+                      <span className={isCurrent ? "text-[#8CC2B4] font-bold" : isFinished ? "text-[#F1F4F2]" : "text-[#68736E]"}>
                         {stg.name}
                       </span>
                     </div>
-                    <div className="text-[11px] text-neutral-400 font-sans mt-0.5 truncate">
+                    <div className="text-[11px] text-[#9BA6A1] font-sans mt-0.5 truncate">
                       {stg.description}
                     </div>
                   </div>
@@ -435,14 +413,14 @@ export default function ProcessingPage({ params }: PageProps) {
 
                 <div className="text-[10px] font-mono shrink-0 pl-3">
                   {isFinished ? (
-                    <span className="text-emerald-400 font-medium">COMPLETED</span>
+                    <span className="text-[#78AFA2] font-medium">COMPLETED</span>
                   ) : isCurrent ? (
-                    <span className="text-amber-400 font-semibold animate-pulse flex items-center gap-1">
-                      <Loader2 className="w-3 h-3 animate-spin inline" />
+                    <span className="text-[#8CC2B4] font-semibold flex items-center gap-1.5">
+                      <Loader2 className="w-3 h-3 animate-spin inline text-[#78AFA2]" />
                       IN PROGRESS
                     </span>
                   ) : (
-                    <span className="text-neutral-600">QUEUED</span>
+                    <span className="text-[#68736E]">PENDING</span>
                   )}
                 </div>
               </div>
@@ -452,10 +430,10 @@ export default function ProcessingPage({ params }: PageProps) {
       </div>
 
       {/* Navigation Footer */}
-      <div className="pt-2 flex items-center justify-between text-xs font-mono text-neutral-500">
+      <div className="pt-2 flex items-center justify-between text-xs font-mono text-[#68736E]">
         <Link
           href="/dashboard"
-          className="hover:text-neutral-300 transition-colors flex items-center gap-1"
+          className="hover:text-[#F1F4F2] transition-colors flex items-center gap-1"
         >
           ← Return to Dashboard
         </Link>

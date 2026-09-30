@@ -142,7 +142,7 @@ export function Hero3DCanvas({ scrollProgress = 0 }: Hero3DCanvasProps) {
                 ]}
               />
             </bufferGeometry>
-            <lineDashedMaterial color="#f59e0b" dashSize={1.5} gapSize={1.0} opacity={0.35} transparent />
+            <lineDashedMaterial color="#78AFA2" dashSize={1.5} gapSize={1.0} opacity={0.35} transparent />
           </line>
         </group>
       </Canvas>

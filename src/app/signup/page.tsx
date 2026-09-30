@@ -4,16 +4,14 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Compass,
   User,
   Mail,
   Lock,
   ArrowRight,
-  AlertCircle,
-  CheckCircle2,
-  Building
+  AlertCircle
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { TerraReconLogo } from "@/components/layout/TerraReconLogo";
 
 export default function SignupPage() {
   const router = useRouter();
@@ -74,45 +72,40 @@ export default function SignupPage() {
   };
 
   return (
-    <div className="flex-1 min-h-[85vh] flex items-center justify-center px-4 py-12 bg-neutral-950 font-sans select-none">
+    <div className="flex-1 min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#080B0A] font-sans select-none">
       <div className="w-full max-w-md space-y-6">
         {/* Brand Header */}
-        <div className="text-center space-y-2">
-          <Link href="/" className="inline-flex items-center gap-2 mb-2 group">
-            <div className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-amber-500 group-hover:border-amber-500/50 transition-colors">
-              <Compass className="w-5 h-5" />
-            </div>
-            <span className="font-mono text-sm tracking-wider font-semibold text-neutral-100">
-              TERRARECON
-            </span>
+        <div className="text-center space-y-2 flex flex-col items-center">
+          <Link href="/" className="inline-flex items-center gap-2 mb-2 group transition-opacity hover:opacity-90">
+            <TerraReconLogo size={28} subtext="NEW RECONSTRUCTION WORKSPACE" />
           </Link>
 
-          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-100">
+          <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F1F4F2]">
             Create your workspace
           </h1>
-          <p className="text-xs font-mono text-neutral-400">
+          <p className="text-xs font-mono text-[#9BA6A1]">
             INITIALIZE DRONE PHOTOGRAMMETRY GROUND STATION CREDENTIALS
           </p>
         </div>
 
         {/* Signup Card */}
-        <div className="p-6 sm:p-8 rounded-xl bg-neutral-900/80 border border-neutral-800 shadow-2xl backdrop-blur space-y-5">
+        <div className="p-6 sm:p-8 rounded-[14px] bg-[#121916] border border-[#26302C] shadow-2xl space-y-5">
           {/* Error Banner */}
           {errorMsg && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-xs flex items-start gap-2 animate-in fade-in">
+            <div className="p-3 rounded-[8px] bg-[#B87575]/12 border border-[#B87575]/35 text-[#B87575] font-mono text-xs flex items-start gap-2">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
               <span>{errorMsg}</span>
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
-            {/* Name Field */}
+            {/* Full Name */}
             <div>
-              <label className="block text-neutral-300 mb-1.5 font-medium">
-                FULL NAME
+              <label className="block text-[#F1F4F2] mb-1.5 font-medium">
+                SURVEYOR NAME / OPERATOR
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <User className="w-4 h-4 text-[#68736E] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={name}
@@ -121,19 +114,19 @@ export default function SignupPage() {
                     if (errorMsg) setErrorMsg(null);
                   }}
                   disabled={isSubmitting}
-                  className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 disabled:opacity-50 transition-colors"
-                  placeholder="e.g. Commander Vikram Nair"
+                  className="w-full pl-9 pr-3 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] disabled:opacity-50 transition-colors"
+                  placeholder="Capt. Rajesh Kumar"
                 />
               </div>
             </div>
 
             {/* Email Field */}
             <div>
-              <label className="block text-neutral-300 mb-1.5 font-medium">
-                OFFICIAL EMAIL
+              <label className="block text-[#F1F4F2] mb-1.5 font-medium">
+                OFFICIAL WORK EMAIL
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#68736E] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   value={email}
@@ -142,19 +135,19 @@ export default function SignupPage() {
                     if (errorMsg) setErrorMsg(null);
                   }}
                   disabled={isSubmitting}
-                  className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 disabled:opacity-50 transition-colors"
-                  placeholder="surveyor@organisation.gov.in"
+                  className="w-full pl-9 pr-3 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] disabled:opacity-50 transition-colors"
+                  placeholder="surveyor@organisation.org"
                 />
               </div>
             </div>
 
-            {/* Password Field */}
+            {/* Password */}
             <div>
-              <label className="block text-neutral-300 mb-1.5 font-medium">
-                PASSWORD (MIN. 6 CHARS)
+              <label className="block text-[#F1F4F2] mb-1.5 font-medium">
+                MASTER PASSWORD
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#68736E] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   value={password}
@@ -163,19 +156,19 @@ export default function SignupPage() {
                     if (errorMsg) setErrorMsg(null);
                   }}
                   disabled={isSubmitting}
-                  className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 disabled:opacity-50 transition-colors"
-                  placeholder="••••••••••••"
+                  className="w-full pl-9 pr-3 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] disabled:opacity-50 transition-colors"
+                  placeholder="At least 6 characters"
                 />
               </div>
             </div>
 
-            {/* Confirm Password Field */}
+            {/* Confirm Password */}
             <div>
-              <label className="block text-neutral-300 mb-1.5 font-medium">
+              <label className="block text-[#F1F4F2] mb-1.5 font-medium">
                 CONFIRM PASSWORD
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#68736E] absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   value={confirmPassword}
@@ -184,8 +177,8 @@ export default function SignupPage() {
                     if (errorMsg) setErrorMsg(null);
                   }}
                   disabled={isSubmitting}
-                  className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 disabled:opacity-50 transition-colors"
-                  placeholder="••••••••••••"
+                  className="w-full pl-9 pr-3 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] disabled:opacity-50 transition-colors"
+                  placeholder="Repeat master password"
                 />
               </div>
             </div>
@@ -194,31 +187,28 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-xs font-mono rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 cursor-pointer pt-3"
+              className="w-full h-11 px-4 bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold text-xs font-mono rounded-[8px] flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 cursor-pointer mt-2"
             >
               {isSubmitting ? (
                 <div className="flex items-center gap-2">
-                  <div className="w-3.5 h-3.5 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
-                  <span>Provisioning Workspace...</span>
+                  <div className="w-3.5 h-3.5 border-2 border-[#080B0A] border-t-transparent rounded-full animate-spin" />
+                  <span>Registering Station...</span>
                 </div>
               ) : (
                 <>
-                  Create account <ArrowRight className="w-3.5 h-3.5" />
+                  Register Workspace <ArrowRight className="w-3.5 h-3.5" />
                 </>
               )}
             </button>
           </form>
-        </div>
 
-        {/* Footer Navigation */}
-        <div className="text-center font-mono text-xs text-neutral-500 space-y-1">
-          <div>
-            Already registered?{" "}
-            <Link href="/login" className="text-amber-400 hover:underline">
-              Sign in to your account
+          {/* Link to Login */}
+          <div className="text-center pt-3 border-t border-[#26302C] font-mono text-xs text-[#9BA6A1]">
+            Already hold an operator profile?{" "}
+            <Link href="/login" className="text-[#78AFA2] hover:text-[#8CC2B4] font-medium hover:underline">
+              Sign in to console
             </Link>
           </div>
-          <div>All survey projects and flight passes remain saved in local storage.</div>
         </div>
       </div>
     </div>

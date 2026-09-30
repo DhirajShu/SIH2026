@@ -1,26 +1,227 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* TerraRecon Global Design System Tokens */
+  --background: #080b0a;
+  --secondary: #0d1210;
+  --surface: #121916;
+  --border: #26302c;
+
+  --text-primary: #f1f4f2;
+  --text-secondary: #9ba6a1;
+  --text-muted: #68736e;
+
+  --accent: #78afa2;
+  --accent-hover: #8cc2b4;
+  --accent-dark: #4f7f74;
+
+  --success: #7fae8d;
+  --warning: #b49b69;
+  --error: #b87575;
 }
 
-@theme inline {
+@theme {
   --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-secondary: var(--secondary);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+
+  --color-text-primary: var(--text-primary);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-muted: var(--text-muted);
+
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-dark: var(--accent-dark);
+
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --color-error: var(--error);
+
+  --font-sans: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), monospace;
+  --font-display: var(--font-space-grotesk), var(--font-geist-sans), sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+/* Global Base */
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: #080b0a;
+  color: #f1f4f2;
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+}
+
+/* Selection Color */
+::selection {
+  background-color: rgba(120, 175, 162, 0.28);
+  color: #f1f4f2;
+}
+
+/* Standardized Buttons */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 1.25rem;
+  border-radius: 8px;
+  background-color: #78afa2;
+  color: #080b0a;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  transition: all 0.15s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #8cc2b4;
+}
+
+.btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  height: 44px;
+  padding: 0 1.25rem;
+  border-radius: 8px;
+  background-color: #121916;
+  border: 1px solid #26302c;
+  color: #f1f4f2;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  transition: all 0.15s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #17211d;
+  border-color: #78afa2;
+}
+
+/* Card Surface */
+.surface-card {
+  background-color: #121916;
+  border: 1px solid #26302c;
+  border-radius: 12px;
+}
+
+/* Inputs */
+.input-surface {
+  height: 42px;
+  border-radius: 8px;
+  background-color: #0d1210;
+  border: 1px solid #26302c;
+  color: #f1f4f2;
+  padding: 0 0.875rem;
+  font-size: 0.8125rem;
+  transition: border-color 0.15s ease;
+}
+.input-surface:focus {
+  outline: none;
+  border-color: #78afa2;
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #080b0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #26302c;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #4f7f74;
+}
+
+/* =====================================================
+   Landing Page — Animated Background Motion
+   Drifting teal gradient orbs using established palette
+   ===================================================== */
+@keyframes landing-drift {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(6%, -8%) scale(1.05); }
+  50% { transform: translate(-4%, 5%) scale(0.97); }
+  75% { transform: translate(8%, 3%) scale(1.03); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes landing-drift-reverse {
+  0% { transform: translate(0, 0) scale(1); }
+  25% { transform: translate(-7%, 6%) scale(0.96); }
+  50% { transform: translate(5%, -4%) scale(1.04); }
+  75% { transform: translate(-3%, -7%) scale(1.01); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes landing-pulse {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 0.7; }
+}
+
+.landing-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(80px);
+  will-change: transform, opacity;
+}
+
+.landing-orb--1 {
+  width: 45vw;
+  height: 45vw;
+  max-width: 600px;
+  max-height: 600px;
+  top: 8%;
+  right: -8%;
+  background: radial-gradient(circle, rgba(120,175,162,0.07) 0%, rgba(79,127,116,0.03) 50%, transparent 75%);
+  animation: landing-drift 22s ease-in-out infinite, landing-pulse 8s ease-in-out infinite;
+}
+
+.landing-orb--2 {
+  width: 35vw;
+  height: 35vw;
+  max-width: 480px;
+  max-height: 480px;
+  bottom: 12%;
+  left: -5%;
+  background: radial-gradient(circle, rgba(79,127,116,0.06) 0%, rgba(120,175,162,0.02) 50%, transparent 75%);
+  animation: landing-drift-reverse 28s ease-in-out infinite, landing-pulse 10s ease-in-out 2s infinite;
+}
+
+.landing-orb--3 {
+  width: 25vw;
+  height: 25vw;
+  max-width: 350px;
+  max-height: 350px;
+  top: 45%;
+  left: 30%;
+  background: radial-gradient(circle, rgba(140,194,180,0.04) 0%, rgba(120,175,162,0.015) 50%, transparent 75%);
+  animation: landing-drift 30s ease-in-out 4s infinite, landing-pulse 12s ease-in-out 3s infinite;
+}
+
+.landing-orb--4 {
+  width: 20vw;
+  height: 20vw;
+  max-width: 280px;
+  max-height: 280px;
+  top: 15%;
+  left: 10%;
+  background: radial-gradient(circle, rgba(120,175,162,0.05) 0%, transparent 70%);
+  animation: landing-drift-reverse 25s ease-in-out 1s infinite;
+}
+
+.landing-orb--5 {
+  width: 30vw;
+  height: 30vw;
+  max-width: 400px;
+  max-height: 400px;
+  bottom: 5%;
+  right: 15%;
+  background: radial-gradient(circle, rgba(79,127,116,0.045) 0%, rgba(18,25,22,0.02) 50%, transparent 75%);
+  animation: landing-drift 35s ease-in-out 6s infinite, landing-pulse 14s ease-in-out 5s infinite;
 }

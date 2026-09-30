@@ -1,15 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Compass,
-  Layers,
   FolderGit2,
   PlusCircle,
   Settings,
-  User,
   LogOut,
   Menu,
   X,
@@ -17,6 +14,7 @@ import {
   Boxes
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { TerraReconLogo } from "./TerraReconLogo";
 
 export function Navbar() {
   const pathname = usePathname();
@@ -31,47 +29,42 @@ export function Navbar() {
   ];
 
   const isAuthPage = pathname === "/login" || pathname === "/signup";
+  const isLandingPage = pathname === "/";
+
+  // Landing page has its own navigation embedded in the scroll story
+  if (isLandingPage) {
+    return null;
+  }
 
   return (
-    <header className="sticky top-0 z-40 w-full bg-neutral-950/85 backdrop-blur-md border-b border-neutral-800/80 select-none">
+    <header className="sticky top-0 z-40 w-full bg-[#080B0A]/92 border-b border-[#26302C]/80 select-none">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between">
-        {/* Logo and Brand */}
+        {/* Logo and Brand — same wordmark/treatment as landing */}
         <div className="flex items-center gap-6">
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div className="w-8 h-8 rounded-lg bg-neutral-900 border border-neutral-700/80 flex items-center justify-center text-amber-400 group-hover:border-amber-500/60 transition-colors">
-              <Compass className="w-4 h-4 text-amber-500 group-hover:rotate-45 transition-transform duration-300" />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-mono text-sm tracking-wider font-semibold text-neutral-100 flex items-center gap-1.5">
-                TERRARECON
-                <span className="text-[10px] px-1 py-0.2 bg-amber-500/10 text-amber-400 border border-amber-500/30 rounded font-mono font-normal">
-                  v2.4
-                </span>
-              </span>
-              <span className="text-[9px] font-mono text-neutral-400 tracking-tight">
-                SINGLE-PASS DRONE PHOTOGRAMMETRY
-              </span>
-            </div>
+          <Link href="/" className="group transition-opacity duration-200 hover:opacity-85">
+            <TerraReconLogo size={24} subtext="GEOSPATIAL ENGINE" />
           </Link>
 
-          {/* Desktop Navigation Links */}
+          {/* Desktop Navigation Links — uses same visual language as landing nav */}
           {!isAuthPage && (
-            <nav className="hidden md:flex items-center gap-1 ml-4 border-l border-neutral-800/80 pl-4">
+            <nav className="hidden md:flex items-center gap-1 ml-4 border-l border-[#26302C] pl-4">
               {navLinks.map((link) => {
                 const Icon = link.icon;
-                const isActive = pathname === link.href || (link.href !== "/dashboard" && pathname.startsWith(link.href));
+                const isActive =
+                  pathname === link.href ||
+                  (link.href !== "/dashboard" && pathname.startsWith(link.href));
                 return (
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-mono transition-colors ${
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-[8px] text-[11px] font-sans tracking-[0.04em] transition-colors duration-200 ${
                       link.highlight
                         ? isActive
-                          ? "bg-amber-500 text-neutral-950 font-medium"
-                          : "bg-amber-500/10 text-amber-400 border border-amber-500/30 hover:bg-amber-500/20"
+                          ? "bg-[#78AFA2] text-[#080B0A] font-semibold"
+                          : "bg-[#78AFA2]/10 text-[#78AFA2] border border-[#78AFA2]/25 hover:bg-[#78AFA2]/18"
                         : isActive
-                        ? "bg-neutral-800/80 text-neutral-100"
-                        : "text-neutral-400 hover:text-neutral-200 hover:bg-neutral-900"
+                        ? "bg-[#78AFA2]/10 text-[#F1F4F2] border border-[#78AFA2]/20"
+                        : "text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#0D1210]"
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -85,32 +78,32 @@ export function Navbar() {
 
         {/* Right side: telemetry status indicator + user profile */}
         <div className="hidden sm:flex items-center gap-4">
-          <div className="flex items-center gap-2 px-2.5 py-1 rounded bg-neutral-900/60 border border-neutral-800 font-mono text-[11px] text-neutral-400">
-            <Radio className="w-3 h-3 text-emerald-400 animate-pulse" />
-            <span>NVDEC GPU: <strong className="text-neutral-300">ONLINE</strong></span>
-            <span className="text-neutral-600">|</span>
-            <span>RTK: <strong className="text-neutral-300">FIXED</strong></span>
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-[8px] bg-[#0D1210] border border-[#26302C] font-mono text-[11px] text-[#9BA6A1]">
+            <Radio className="w-3 h-3 text-[#7FAE8D] animate-pulse" />
+            <span>NVDEC GPU: <strong className="text-[#F1F4F2]">ONLINE</strong></span>
+            <span className="text-[#26302C]">|</span>
+            <span>RTK: <strong className="text-[#F1F4F2]">FIXED</strong></span>
           </div>
 
           {user ? (
             <div className="flex items-center gap-2">
               <Link
                 href="/dashboard/settings"
-                className="flex items-center gap-2 py-1 px-2.5 rounded-lg border border-neutral-800 bg-neutral-900/40 hover:bg-neutral-800/50 transition-colors"
+                className="flex items-center gap-2 py-1 px-2.5 rounded-[8px] border border-[#26302C] bg-[#0D1210] hover:bg-[#121916] transition-colors duration-200"
               >
-                <div className="w-6 h-6 rounded-full bg-neutral-800 border border-neutral-700 flex items-center justify-center text-xs font-mono text-neutral-300">
+                <div className="w-6 h-6 rounded-full bg-[#121916] border border-[#26302C] flex items-center justify-center text-xs font-sans text-[#78AFA2]">
                   {user.name.charAt(0)}
                 </div>
                 <div className="hidden lg:flex flex-col text-left">
-                  <span className="text-xs text-neutral-200 font-medium leading-none">{user.name}</span>
-                  <span className="text-[10px] text-neutral-400 leading-none mt-1">{user.role}</span>
+                  <span className="text-[11px] text-[#F1F4F2] font-medium leading-none">{user.name}</span>
+                  <span className="text-[10px] text-[#9BA6A1] leading-none mt-1">{user.role}</span>
                 </div>
               </Link>
               <button
                 type="button"
                 onClick={logout}
                 title="Switch User / Logout"
-                className="p-1.5 text-neutral-400 hover:text-neutral-200 hover:bg-neutral-800/60 rounded-lg transition-colors cursor-pointer"
+                className="p-1.5 text-[#9BA6A1] hover:text-[#F1F4F2] hover:bg-[#121916] rounded-[8px] transition-colors duration-200 cursor-pointer"
               >
                 <LogOut className="w-4 h-4" />
               </button>
@@ -119,13 +112,13 @@ export function Navbar() {
             <div className="flex items-center gap-2">
               <Link
                 href="/login"
-                className="text-xs font-mono text-neutral-300 hover:text-neutral-100 px-3 py-1.5 rounded transition-colors"
+                className="text-[11px] font-sans tracking-[0.04em] text-[#9BA6A1] hover:text-[#F1F4F2] px-3 py-1.5 rounded-[8px] transition-colors duration-200"
               >
                 Sign In
               </Link>
               <Link
                 href="/signup"
-                className="text-xs font-mono bg-neutral-200 hover:bg-neutral-100 text-neutral-950 font-semibold px-3 py-1.5 rounded transition-colors"
+                className="text-[11px] font-sans tracking-[0.04em] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold px-4 py-1.5 rounded-[8px] transition-colors duration-200"
               >
                 Get Started
               </Link>
@@ -137,7 +130,7 @@ export function Navbar() {
         <div className="md:hidden flex items-center gap-2">
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-1.5 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-900 border border-neutral-800"
+            className="p-1.5 text-[#9BA6A1] hover:text-[#F1F4F2] rounded-[8px] hover:bg-[#121916] border border-[#26302C] transition-colors duration-200"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -146,7 +139,7 @@ export function Navbar() {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden px-4 pt-2 pb-4 border-t border-neutral-800 bg-neutral-950/95 space-y-2 font-mono text-xs">
+        <div className="md:hidden px-4 pt-2 pb-4 border-t border-[#26302C] bg-[#080B0A]/95 space-y-2 font-sans text-[11px] tracking-[0.04em]">
           {navLinks.map((link) => {
             const Icon = link.icon;
             const isActive = pathname === link.href;
@@ -155,8 +148,8 @@ export function Navbar() {
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`flex items-center gap-2.5 px-3 py-2 rounded-lg ${
-                  isActive ? "bg-amber-500/20 text-amber-400 font-semibold" : "text-neutral-300 hover:bg-neutral-900"
+                className={`flex items-center gap-2.5 px-3 py-2 rounded-[8px] transition-colors duration-200 ${
+                  isActive ? "bg-[#78AFA2]/12 text-[#78AFA2] font-semibold" : "text-[#9BA6A1] hover:bg-[#121916]"
                 }`}
               >
                 <Icon className="w-4 h-4" />
@@ -164,7 +157,7 @@ export function Navbar() {
               </Link>
             );
           })}
-          <div className="pt-2 border-t border-neutral-800/80 flex items-center justify-between text-neutral-400">
+          <div className="pt-2 border-t border-[#26302C] flex items-center justify-between text-[#9BA6A1]">
             <span>{user ? user.name : "Guest Surveyor"}</span>
             {user ? (
               <button
@@ -173,7 +166,7 @@ export function Navbar() {
                   logout();
                   setMobileMenuOpen(false);
                 }}
-                className="text-amber-400 hover:underline cursor-pointer"
+                className="text-[#78AFA2] hover:underline cursor-pointer"
               >
                 Sign Out
               </button>
@@ -181,7 +174,7 @@ export function Navbar() {
               <Link
                 href="/login"
                 onClick={() => setMobileMenuOpen(false)}
-                className="text-amber-400 hover:underline"
+                className="text-[#78AFA2] hover:underline"
               >
                 Sign In
               </Link>

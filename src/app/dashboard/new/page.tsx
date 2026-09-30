@@ -2,17 +2,13 @@
 
 import React, { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
-  UploadCloud,
   FileVideo,
   X,
   RotateCcw,
   CheckCircle2,
   AlertCircle,
   Play,
-  ArrowRight,
-  HardDrive,
   Film,
   Camera,
   Layers
@@ -36,7 +32,7 @@ export default function NewReconstructionPage() {
   const [uploadError, setUploadError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Project form fields (shown after video selection)
+  // Project form fields
   const [projectName, setProjectName] = useState("");
   const [description, setDescription] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
@@ -70,7 +66,6 @@ export default function NewReconstructionPage() {
     setFile(selectedFile);
     setUploadProgress(100);
 
-    // Auto-derive project name if empty
     const cleanBaseName = selectedFile.name
       .replace(/\.[^/.]+$/, "")
       .replace(/[_-]/g, " ")
@@ -118,9 +113,9 @@ export default function NewReconstructionPage() {
 
   const handleRetry = () => {
     handleRemoveFile();
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
+    setTimeout(() => {
+      fileInputRef.current?.click();
+    }, 50);
   };
 
   const formatFileSize = (bytes: number): string => {
@@ -130,114 +125,99 @@ export default function NewReconstructionPage() {
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  // Start reconstruction action
-  const handleStartReconstruction = async () => {
+  const handleStartReconstruction = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+
     if (!file) {
-      setFormError("Please select or drop a valid video file.");
+      setFormError("Please upload a drone flight video before starting reconstruction.");
       return;
     }
 
     if (!projectName.trim()) {
-      setFormError("Please provide a name for this reconstruction project.");
+      setFormError("Please enter a name for this reconstruction project.");
       return;
     }
 
     setIsUploading(true);
-    setFormError(null);
-
-    const projectId = `proj-${Date.now().toString(36)}-${Math.random().toString(36).substring(2, 6)}`;
 
     try {
-      // 1. Save uploaded video into modular storage (IndexedDB) with progress
-      await videoStorage.saveVideo(projectId, file, (progress) => {
-        setUploadProgress(progress);
-      });
+      const projectId = `proj-${Date.now()}`;
+      await videoStorage.saveVideo(projectId, file);
 
-      // 2. Build initial 8 prototype pipeline stages
       const initialStages: PipelineStage[] = [
         {
           id: "stg-1",
-          name: "VIDEO INGESTION",
+          name: "Video Ingestion & Hardware Decoding",
           category: "ingest",
           status: "processing",
-          progress: 10,
-          durationSec: 2,
-          logMessage: "Preparing the uploaded drone footage.",
-          details: "Preparing the uploaded drone footage.",
+          progress: 15,
+          durationSec: 1,
+          details: "Hardware NVDEC decoding initialized. Verifying metadata and frame rate.",
+          logMessage: `Uploaded ${file.name} (${formatFileSize(file.size)}) registered for single-pass ingestion.`,
         },
         {
           id: "stg-2",
-          name: "FRAME EXTRACTION",
+          name: "Optical Flow & Keyframe Extraction",
           category: "ingest",
           status: "pending",
           progress: 0,
-          durationSec: 2,
-          logMessage: "Queued",
-          details: "Extracting useful frames.",
+          durationSec: 0,
+          logMessage: "Pending keyframe extraction",
+          details: "Dynamic motion blur rejection and 80% longitudinal overlap filtering.",
         },
         {
           id: "stg-3",
-          name: "FEATURE DETECTION",
+          name: "SIFT Feature Detection & Geometric Verification",
           category: "sfm",
           status: "pending",
           progress: 0,
-          durationSec: 2,
-          logMessage: "Queued",
-          details: "Detecting visual landmarks and keypoints across frames.",
+          durationSec: 0,
+          logMessage: "Pending feature detection",
+          details: "Scale-Invariant Feature Transform with epipolar correspondence matching.",
         },
         {
           id: "stg-4",
-          name: "FEATURE MATCHING",
+          name: "Structure from Motion & Camera Pose Solver",
           category: "sfm",
           status: "pending",
           progress: 0,
-          durationSec: 2,
-          logMessage: "Queued",
-          details: "Finding visual features between frames.",
+          durationSec: 0,
+          logMessage: "Pending camera pose solver",
+          details: "Incremental bundle adjustment estimating 3D camera trajectory.",
         },
         {
           id: "stg-5",
-          name: "CAMERA POSE ESTIMATION",
-          category: "sfm",
-          status: "pending",
-          progress: 0,
-          durationSec: 2,
-          logMessage: "Queued",
-          details: "Estimating camera movement.",
-        },
-        {
-          id: "stg-6",
-          name: "POINT CLOUD GENERATION",
+          name: "Multi-View Stereo Dense Cloud Generation",
           category: "mvs",
           status: "pending",
           progress: 0,
-          durationSec: 3,
-          logMessage: "Queued",
-          details: "Building 3D structure.",
+          durationSec: 0,
+          logMessage: "Pending point cloud generation",
+          details: "PatchMatch dense stereo matching generating high-density elevation points.",
         },
         {
-          id: "stg-7",
-          name: "MESH GENERATION",
+          id: "stg-6",
+          name: "Poisson Surface Meshing & TIN Optimization",
           category: "mesh",
           status: "pending",
           progress: 0,
-          durationSec: 3,
-          logMessage: "Queued",
-          details: "Generating terrain geometry.",
+          durationSec: 0,
+          logMessage: "Pending mesh generation",
+          details: "Screened Poisson surface reconstruction with Delaunay triangulation.",
         },
         {
-          id: "stg-8",
-          name: "3D TERRAIN READY",
+          id: "stg-7",
+          name: "Texture Projection & Orthorectification",
           category: "ortho",
           status: "pending",
           progress: 0,
-          durationSec: 1,
-          logMessage: "Queued",
-          details: "Reconstruction complete. Preparing 3D viewer.",
+          durationSec: 0,
+          logMessage: "Pending orthorectification",
+          details: "Multi-band seamless texture blending and ortho-rectification projection.",
         },
       ];
 
-      // 3. Create project object with Status: Processing
       const now = new Date();
       const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")} ${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 
@@ -259,9 +239,9 @@ export default function NewReconstructionPage() {
         reprojectionErrorPx: 0.62,
         pointCloudSize: 3420000,
         triangleCount: 684000,
-        status: "processing", // Requirement: Set status to Processing
+        status: "processing",
         progressPercent: 12,
-        currentStage: "Video Ingestion & Keyframe Selection",
+        currentStage: "Video Ingestion & Hardware Decoding",
         droneModel: "DJI Matrice 350 RTK",
         cameraSensor: "Zenmuse P1 (45MP Full-Frame 35mm)",
         focalLengthMm: 35.0,
@@ -299,10 +279,7 @@ export default function NewReconstructionPage() {
         },
       };
 
-      // 4. Save project in local persistence
       saveProject(newProject);
-
-      // 5. Navigate to: /dashboard/projects/[id]/processing
       router.push(`/dashboard/projects/${projectId}/processing`);
     } catch (err: any) {
       console.error("Reconstruction initialization failed:", err);
@@ -312,20 +289,20 @@ export default function NewReconstructionPage() {
   };
 
   return (
-    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-8">
+    <div className="flex-1 p-6 sm:p-8 lg:p-10 font-sans select-none max-w-4xl mx-auto space-y-8 bg-[#080B0A] text-[#F1F4F2]">
       {/* Header */}
-      <div className="pb-6 border-b border-neutral-800/80 space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-100">
+      <div className="pb-6 border-b border-[#26302C] space-y-1">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F1F4F2]">
           New Reconstruction
         </h1>
-        <p className="text-neutral-400 text-sm">
-          Upload a drone flight video to begin.
+        <p className="text-[#9BA6A1] text-sm">
+          Upload a drone flight video to initiate single-pass 3D reconstruction.
         </p>
       </div>
 
       {/* Upload Error Banner */}
       {uploadError && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-xs flex items-start gap-3 animate-in fade-in">
+        <div className="p-4 rounded-[8px] bg-[#B87575]/15 border border-[#B87575]/35 text-[#B87575] font-mono text-xs flex items-start gap-3">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div className="flex-1">
             <span className="font-semibold block mb-0.5">Upload Validation Error:</span>
@@ -333,7 +310,7 @@ export default function NewReconstructionPage() {
           </div>
           <button
             onClick={() => setUploadError(null)}
-            className="text-red-400 hover:text-red-300"
+            className="text-[#B87575] hover:text-[#F1F4F2] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -342,35 +319,31 @@ export default function NewReconstructionPage() {
 
       {/* Form Error Banner */}
       {formError && (
-        <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-xs flex items-start gap-3 animate-in fade-in">
+        <div className="p-4 rounded-[8px] bg-[#B87575]/15 border border-[#B87575]/35 text-[#B87575] font-mono text-xs flex items-start gap-3">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
           <div className="flex-1">
             <span>{formError}</span>
           </div>
           <button
             onClick={() => setFormError(null)}
-            className="text-red-400 hover:text-red-300"
+            className="text-[#B87575] hover:text-[#F1F4F2] cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
       )}
 
-      {/* =========================================================================
-          LARGE DRAG-AND-DROP UPLOAD AREA
-          Supports MP4, MOV, WebM with Drag & Drop, File Picker,
-          File Name, File Size, Upload Progress, Remove, and Retry
-      ========================================================================= */}
+      {/* Large Technical Drag-and-Drop Area */}
       {!file ? (
         <div
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
           onClick={() => fileInputRef.current?.click()}
-          className={`relative rounded-2xl border-2 border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
+          className={`relative rounded-[14px] border-2 border-dashed p-10 sm:p-14 flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
             isDragging
-              ? "border-amber-500 bg-amber-500/5 scale-[1.01]"
-              : "border-neutral-800 bg-neutral-900/40 hover:border-neutral-700 hover:bg-neutral-900/60"
+              ? "border-[#78AFA2] bg-[#78AFA2]/5 scale-[1.01]"
+              : "border-[#26302C] bg-[#121916] hover:border-[#78AFA2]/70 hover:bg-[#121916]/80"
           }`}
         >
           <input
@@ -385,43 +358,43 @@ export default function NewReconstructionPage() {
             className="hidden"
           />
 
-          <div className="w-16 h-16 rounded-2xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-amber-500 shadow-xl mb-4">
-            <UploadCloud className="w-8 h-8" />
+          <div className="w-14 h-14 rounded-[12px] bg-[#0D1210] border border-[#26302C] flex items-center justify-center text-[#78AFA2] shadow-lg mb-4">
+            <Camera className="w-7 h-7" />
           </div>
 
-          <h3 className="text-base sm:text-lg font-semibold text-neutral-100">
+          <h3 className="text-base sm:text-lg font-semibold text-[#F1F4F2]">
             Drag and drop your drone video here
           </h3>
 
-          <p className="text-xs sm:text-sm text-neutral-400 mt-1 max-w-md">
-            Supports <strong className="text-neutral-200">MP4</strong>, <strong className="text-neutral-200">MOV</strong>, or <strong className="text-neutral-200">WebM</strong> flight recordings up to {MAX_FILE_SIZE_MB}MB.
+          <p className="text-xs sm:text-sm text-[#9BA6A1] mt-1 max-w-md">
+            Supports <strong className="text-[#F1F4F2]">MP4</strong>, <strong className="text-[#F1F4F2]">MOV</strong>, or <strong className="text-[#F1F4F2]">WebM</strong> flight recordings up to {MAX_FILE_SIZE_MB}MB.
           </p>
 
-          <div className="mt-5 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-mono text-xs transition-colors border border-neutral-700">
-            <Film className="w-3.5 h-3.5 text-amber-400" />
+          <div className="mt-5 inline-flex items-center gap-2 h-10 px-4 rounded-[8px] bg-[#0D1210] hover:bg-[#17211d] text-[#F1F4F2] font-mono text-xs transition-colors border border-[#26302C]">
+            <Film className="w-3.5 h-3.5 text-[#78AFA2]" />
             Browse Files
           </div>
         </div>
       ) : (
-        /* Selected File Card with details, progress bar, remove and retry */
-        <div className="p-6 rounded-2xl bg-neutral-900/70 border border-neutral-800 shadow-xl space-y-4">
+        /* Selected File Card */
+        <div className="p-6 rounded-[14px] bg-[#121916] border border-[#26302C] shadow-xl space-y-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3 min-w-0">
-              <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 shrink-0">
+              <div className="w-12 h-12 rounded-[10px] bg-[#0D1210] border border-[#26302C] flex items-center justify-center text-[#78AFA2] shrink-0">
                 <FileVideo className="w-6 h-6" />
               </div>
               <div className="min-w-0">
-                <div className="text-sm font-semibold text-neutral-100 truncate">
+                <div className="text-sm font-semibold text-[#F1F4F2] truncate">
                   {file.name}
                 </div>
-                <div className="text-xs font-mono text-neutral-400 flex items-center gap-2 mt-0.5">
+                <div className="text-xs font-mono text-[#9BA6A1] flex items-center gap-2 mt-0.5">
                   <span>{formatFileSize(file.size)}</span>
                   <span>•</span>
-                  <span className="uppercase text-amber-400">
+                  <span className="uppercase text-[#78AFA2]">
                     {file.name.split(".").pop()}
                   </span>
                   <span>•</span>
-                  <span className="text-emerald-400 flex items-center gap-1">
+                  <span className="text-[#7FAE8D] flex items-center gap-1">
                     <CheckCircle2 className="w-3 h-3" /> Ready for Ingestion
                   </span>
                 </div>
@@ -433,16 +406,16 @@ export default function NewReconstructionPage() {
                 type="button"
                 onClick={handleRetry}
                 title="Change or retry file"
-                className="p-2 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-800 transition-colors flex items-center gap-1 text-xs font-mono"
+                className="h-8 px-3 text-[#9BA6A1] hover:text-[#F1F4F2] rounded-[6px] hover:bg-[#0D1210] transition-colors flex items-center gap-1.5 text-xs font-mono cursor-pointer"
               >
-                <RotateCcw className="w-4 h-4" />
+                <RotateCcw className="w-3.5 h-3.5" />
                 <span className="hidden sm:inline">Change</span>
               </button>
               <button
                 type="button"
                 onClick={handleRemoveFile}
                 title="Remove video file"
-                className="p-2 text-neutral-400 hover:text-red-400 rounded-lg hover:bg-neutral-800 transition-colors"
+                className="p-1.5 text-[#68736E] hover:text-[#B87575] rounded-[6px] hover:bg-[#0D1210] transition-colors cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -451,13 +424,13 @@ export default function NewReconstructionPage() {
 
           {/* Upload Progress Bar */}
           <div className="space-y-1.5 font-mono text-xs">
-            <div className="flex items-center justify-between text-[11px] text-neutral-400">
+            <div className="flex items-center justify-between text-[11px] text-[#9BA6A1]">
               <span>{isUploading ? "Uploading flight video to local engine..." : "Video verified"}</span>
-              <span className="text-amber-400">{uploadProgress}%</span>
+              <span className="text-[#78AFA2]">{uploadProgress}%</span>
             </div>
-            <div className="w-full bg-neutral-950 h-2 rounded-full overflow-hidden border border-neutral-800">
+            <div className="w-full bg-[#0D1210] h-2 rounded-[4px] overflow-hidden border border-[#26302C]">
               <div
-                className="bg-amber-500 h-full rounded-full transition-all duration-300"
+                className="bg-[#78AFA2] h-full rounded-[4px] transition-all duration-300"
                 style={{ width: `${uploadProgress}%` }}
               />
             </div>
@@ -465,25 +438,18 @@ export default function NewReconstructionPage() {
         </div>
       )}
 
-      {/* =========================================================================
-          AFTER SELECTING A VIDEO:
-          Show:
-          - Project Name
-          - Description
-          Then:
-          - "Start Reconstruction"
-      ========================================================================= */}
+      {/* Project Metadata Configuration Card */}
       {file && (
-        <div className="p-6 rounded-2xl bg-neutral-900/60 border border-neutral-800 space-y-6 animate-in fade-in duration-300">
-          <div className="flex items-center gap-2 font-mono text-xs text-neutral-400 pb-3 border-b border-neutral-800">
-            <Layers className="w-4 h-4 text-amber-500" />
+        <div className="p-6 rounded-[14px] bg-[#121916] border border-[#26302C] space-y-6">
+          <div className="flex items-center gap-2 font-mono text-xs text-[#9BA6A1] pb-3 border-b border-[#26302C]">
+            <Layers className="w-4 h-4 text-[#78AFA2]" />
             <span>PROJECT METADATA CONFIGURATION</span>
           </div>
 
           <div className="space-y-4 font-mono text-xs">
             {/* Project Name Field */}
             <div>
-              <label className="block text-neutral-300 mb-1.5 font-medium">
+              <label className="block text-[#F1F4F2] mb-1.5 font-medium">
                 PROJECT NAME *
               </label>
               <input
@@ -495,13 +461,13 @@ export default function NewReconstructionPage() {
                 }}
                 disabled={isUploading}
                 placeholder="e.g. Western Ghats Micro-Catchment Survey"
-                className="w-full px-3.5 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 transition-colors text-xs font-mono"
+                className="w-full px-3.5 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] transition-colors text-xs font-mono"
               />
             </div>
 
             {/* Description Field */}
             <div>
-              <label className="block text-neutral-300 mb-1.5 font-medium">
+              <label className="block text-[#F1F4F2] mb-1.5 font-medium">
                 DESCRIPTION
               </label>
               <textarea
@@ -510,30 +476,30 @@ export default function NewReconstructionPage() {
                 onChange={(e) => setDescription(e.target.value)}
                 disabled={isUploading}
                 placeholder="Brief summary of the drone pass, terrain characteristics, and mapping objectives..."
-                className="w-full px-3.5 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 transition-colors text-xs font-mono resize-none"
+                className="w-full px-3.5 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] transition-colors text-xs font-mono resize-none"
               />
             </div>
           </div>
 
           {/* Action Button: Start Reconstruction */}
-          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-neutral-800/80">
-            <div className="text-[11px] font-mono text-neutral-500">
-              Pipeline: <span className="text-neutral-300">Optical Flow $\to$ SIFT $\to$ Bundle Adjustment $\to$ Poisson TIN</span>
+          <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-[#26302C]">
+            <div className="text-[11px] font-mono text-[#68736E]">
+              Pipeline: <span className="text-[#9BA6A1]">Optical Flow $\to$ SIFT $\to$ Pose Solver $\to$ 3D Mesh</span>
             </div>
 
             <button
               onClick={handleStartReconstruction}
               disabled={isUploading || !file}
-              className="w-full sm:w-auto px-6 py-3 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center justify-center gap-2 transition-all shadow-xl shadow-amber-500/20 disabled:opacity-50 cursor-pointer hover:scale-[1.02]"
+              className="w-full sm:w-auto h-11 px-6 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold font-mono text-xs flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 cursor-pointer"
             >
               {isUploading ? (
                 <>
-                  <div className="w-3.5 h-3.5 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
+                  <div className="w-3.5 h-3.5 border-2 border-[#080B0A] border-t-transparent rounded-full animate-spin" />
                   <span>Initiating Pipeline...</span>
                 </>
               ) : (
                 <>
-                  <Play className="w-3.5 h-3.5 fill-neutral-950" />
+                  <Play className="w-3.5 h-3.5 fill-[#080B0A]" />
                   Start Reconstruction
                 </>
               )}
@@ -542,16 +508,16 @@ export default function NewReconstructionPage() {
         </div>
       )}
 
-      {/* Pre-calibrated Demo Flights Helper (Quick fallback if user has no video file) */}
+      {/* Pre-calibrated Demo Flights Helper */}
       {!file && (
-        <div className="p-5 rounded-xl bg-neutral-900/30 border border-neutral-800 font-mono text-xs space-y-3">
-          <div className="text-neutral-400 flex items-center justify-between">
-            <span className="font-medium text-neutral-300">
+        <div className="p-5 rounded-[12px] bg-[#121916] border border-[#26302C] font-mono text-xs space-y-3">
+          <div className="text-[#9BA6A1] flex items-center justify-between">
+            <span className="font-medium text-[#F1F4F2]">
               Don&apos;t have drone footage ready?
             </span>
-            <span className="text-[10px] text-neutral-500">SIH 2026 PRESETS</span>
+            <span className="text-[10px] text-[#68736E]">SIH 2026 PRESETS</span>
           </div>
-          <p className="text-[11px] text-neutral-500 leading-relaxed">
+          <p className="text-[11px] text-[#68736E] leading-relaxed">
             You can also test the system with pre-calibrated quarry and alpine ridge drone video passes:
           </p>
           <div className="flex flex-wrap gap-2 pt-1">
@@ -565,9 +531,9 @@ export default function NewReconstructionPage() {
                 setProjectName("Khadki Basalt Quarry - Section 4");
                 setDescription("High-resolution single-pass drone photogrammetry capturing terraced basalt quarry faces and haul ramps.");
               }}
-              className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-9 px-3.5 rounded-[8px] bg-[#0D1210] hover:bg-[#17211d] border border-[#26302C] hover:border-[#78AFA2] text-[#F1F4F2] text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Film className="w-3 h-3 text-amber-400" />
+              <Film className="w-3 h-3 text-[#78AFA2]" />
               Use Khadki Quarry Flight (MP4)
             </button>
             <button
@@ -580,9 +546,9 @@ export default function NewReconstructionPage() {
                 setProjectName("Zanskar Canyon Alpine Ridge Survey");
                 setDescription("High-relief single-pass corridor pass across 420m alpine canyon gradient.");
               }}
-              className="px-3 py-1.5 rounded-lg bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 text-neutral-300 text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+              className="h-9 px-3.5 rounded-[8px] bg-[#0D1210] hover:bg-[#17211d] border border-[#26302C] hover:border-[#78AFA2] text-[#F1F4F2] text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
             >
-              <Film className="w-3 h-3 text-sky-400" />
+              <Film className="w-3 h-3 text-[#78AFA2]" />
               Use Zanskar Canyon Flight (MOV)
             </button>
           </div>

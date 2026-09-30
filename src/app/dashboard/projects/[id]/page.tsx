@@ -7,17 +7,9 @@ import {
   ChevronLeft,
   Download,
   Activity,
-  Layers,
-  Sparkles,
-  Camera,
-  Calendar,
   Film,
   CheckCircle2,
-  Clock,
-  RotateCcw,
-  FileText,
-  Sliders,
-  Maximize2,
+  Loader2,
   Info
 } from "lucide-react";
 import { ReconstructionProject } from "@/lib/types";
@@ -46,9 +38,9 @@ export default function ProjectDetailsPage({ params }: PageProps) {
 
   if (!project) {
     return (
-      <div className="flex-1 bg-neutral-950 flex items-center justify-center font-mono text-xs text-neutral-400 p-8">
+      <div className="flex-1 bg-[#080B0A] flex items-center justify-center font-mono text-xs text-[#9BA6A1] p-8">
         <div className="space-y-3 text-center">
-          <div className="animate-spin w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full mx-auto" />
+          <Loader2 className="w-5 h-5 text-[#78AFA2] animate-spin mx-auto" />
           <div>LOADING RECONSTRUCTION: {resolvedParams.id}...</div>
         </div>
       </div>
@@ -67,42 +59,36 @@ export default function ProjectDetailsPage({ params }: PageProps) {
   const isCompleted = project.status === "completed";
 
   return (
-    <div className="flex-1 bg-neutral-950 font-sans text-neutral-100 flex flex-col min-h-screen">
+    <div className="flex-1 bg-[#080B0A] font-sans text-[#F1F4F2] flex flex-col min-h-screen">
       {/* =========================================================================
           TOP VIEWER HEADER & METADATA BAR
-          Shows:
-          - Project name
-          - Source video
-          - Status
-          - "Prototype Reconstruction" subtle label
-          - "Analyze" and "Export" action buttons
       ========================================================================= */}
-      <div className="border-b border-neutral-800/80 bg-neutral-950/95 backdrop-blur-md px-4 sm:px-6 py-3.5 select-none sticky top-0 z-30 shadow-xl">
+      <div className="border-b border-[#26302C] bg-[#0D1210]/95 backdrop-blur-md px-4 sm:px-6 py-3.5 select-none sticky top-0 z-30 shadow-lg">
         <div className="max-w-7xl mx-auto flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* Left: Back Link & Project Information */}
           <div className="flex items-center gap-3 min-w-0">
             <Link
               href="/dashboard/projects"
-              className="p-2 rounded-lg border border-neutral-800 hover:bg-neutral-800 text-neutral-400 hover:text-neutral-200 transition-colors shrink-0"
+              className="p-2 rounded-[8px] border border-[#26302C] bg-[#121916] hover:bg-[#121916]/80 text-[#9BA6A1] hover:text-[#F1F4F2] transition-colors shrink-0"
               title="Return to reconstructions list"
             >
               <ChevronLeft className="w-4 h-4" />
             </Link>
 
             <div className="min-w-0">
-              <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-neutral-400">
-                <span className="px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-bold">
-                  PROTOTYPE RECONSTRUCTION
+              <div className="flex flex-wrap items-center gap-2 font-mono text-xs text-[#68736E]">
+                <span className="px-2 py-0.5 rounded-[6px] bg-[#78AFA2]/12 border border-[#78AFA2]/30 text-[#78AFA2] text-[10px] font-bold tracking-wider uppercase">
+                  01 / RECONSTRUCTION
                 </span>
-                <span className="text-neutral-600 hidden sm:inline">|</span>
-                <span className="text-neutral-400 truncate max-w-xs flex items-center gap-1">
-                  <Film className="w-3 h-3 text-amber-400 shrink-0" />
-                  <span className="text-neutral-500">Source:</span>
-                  <span className="text-neutral-300 font-semibold">{sourceVideo}</span>
+                <span className="hidden sm:inline">|</span>
+                <span className="text-[#9BA6A1] truncate max-w-xs flex items-center gap-1.5">
+                  <Film className="w-3.5 h-3.5 text-[#78AFA2] shrink-0" />
+                  <span className="text-[#68736E]">Source:</span>
+                  <span className="text-[#F1F4F2] font-semibold">{sourceVideo}</span>
                 </span>
               </div>
 
-              <h1 className="text-lg sm:text-xl font-bold text-neutral-100 truncate mt-0.5">
+              <h1 className="text-lg sm:text-xl font-bold text-[#F1F4F2] truncate mt-0.5 tracking-tight">
                 {project.title}
               </h1>
             </div>
@@ -112,10 +98,10 @@ export default function ProjectDetailsPage({ params }: PageProps) {
           <div className="flex items-center gap-3 shrink-0">
             {/* Status Indicator */}
             <span
-              className={`px-2.5 py-1 rounded font-mono text-xs border flex items-center gap-1.5 ${
+              className={`px-2.5 py-1 rounded-[6px] font-mono text-xs border flex items-center gap-1.5 ${
                 isCompleted
-                  ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
-                  : "bg-amber-500/15 text-amber-400 border-amber-500/40"
+                  ? "bg-[#7FAE8D]/15 text-[#7FAE8D] border-[#7FAE8D]/40"
+                  : "bg-[#78AFA2]/15 text-[#78AFA2] border-[#78AFA2]/40"
               }`}
             >
               {isCompleted ? (
@@ -125,7 +111,7 @@ export default function ProjectDetailsPage({ params }: PageProps) {
                 </>
               ) : (
                 <>
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-ping" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
                   <span>PROCESSING</span>
                 </>
               )}
@@ -134,21 +120,21 @@ export default function ProjectDetailsPage({ params }: PageProps) {
             {/* Action Button: Analyze */}
             <button
               onClick={() => setIsAnalyzeOpen((prev) => !prev)}
-              className={`px-3.5 py-2 rounded-lg font-semibold font-mono text-xs flex items-center gap-1.5 transition-all border cursor-pointer ${
+              className={`h-[40px] px-3.5 rounded-[8px] font-semibold font-mono text-xs flex items-center gap-1.5 transition-all border cursor-pointer ${
                 isAnalyzeOpen
-                  ? "bg-neutral-800 text-amber-400 border-amber-500/50"
-                  : "bg-neutral-900 hover:bg-neutral-800 text-neutral-200 border-neutral-700 hover:border-neutral-600"
+                  ? "bg-[#78AFA2]/15 text-[#78AFA2] border-[#78AFA2]/50"
+                  : "bg-[#121916] hover:bg-[#121916]/80 text-[#F1F4F2] border-[#26302C] hover:border-[#78AFA2]/40"
               }`}
               title="Open surface measurement, lighting and analysis tools"
             >
-              <Activity className="w-3.5 h-3.5 text-amber-400" />
+              <Activity className="w-3.5 h-3.5 text-[#78AFA2]" />
               <span>Analyze</span>
             </button>
 
             {/* Action Button: Export */}
             <button
               onClick={() => setIsExportOpen(true)}
-              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-1.5 transition-all shadow-lg shadow-amber-500/20 hover:scale-[1.02] cursor-pointer"
+              className="h-[40px] px-4 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-bold font-mono text-xs flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
               title="Export 3D Model (OBJ/PLY) and Technical Report"
             >
               <Download className="w-3.5 h-3.5" />
@@ -160,8 +146,6 @@ export default function ProjectDetailsPage({ params }: PageProps) {
 
       {/* =========================================================================
           MAIN APPLICATION VIEWPORT
-          The 3D viewer is the visual focus of the page.
-          Expansive, unobstructed, professional interactive canvas.
       ========================================================================= */}
       <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 py-5 flex-1 flex flex-col space-y-4">
         {/* Large 3D Viewport Component */}
@@ -173,27 +157,27 @@ export default function ProjectDetailsPage({ params }: PageProps) {
         />
 
         {/* Project Metadata Footer / Quick Summary Bar */}
-        <div className="p-4 rounded-xl bg-neutral-900/60 border border-neutral-800 font-mono text-xs flex flex-wrap items-center justify-between gap-3 text-neutral-400">
+        <div className="p-4 rounded-xl bg-[#121916] border border-[#26302C] font-mono text-xs flex flex-wrap items-center justify-between gap-3 text-[#9BA6A1]">
           <div className="flex flex-wrap items-center gap-4">
             <div>
-              <span className="text-neutral-500">PROJECT:</span>{" "}
-              <span className="text-neutral-200">{project.id}</span>
+              <span className="text-[#68736E]">PROJECT:</span>{" "}
+              <span className="text-[#F1F4F2]">{project.id}</span>
             </div>
-            <span>•</span>
+            <span className="text-[#26302C]">•</span>
             <div>
-              <span className="text-neutral-500">AIRFRAME:</span>{" "}
-              <span className="text-neutral-200">{project.droneModel || "Survey UAV"}</span>
+              <span className="text-[#68736E]">AIRFRAME:</span>{" "}
+              <span className="text-[#F1F4F2]">{project.droneModel || "Survey UAV"}</span>
             </div>
-            <span>•</span>
+            <span className="text-[#26302C]">•</span>
             <div>
-              <span className="text-neutral-500">DATE:</span>{" "}
-              <span className="text-neutral-200">{project.captureDate || "Recent Survey"}</span>
+              <span className="text-[#68736E]">DATE:</span>{" "}
+              <span className="text-[#F1F4F2]">{project.captureDate || "Recent Survey"}</span>
             </div>
           </div>
 
-          <div className="text-[11px] text-neutral-500 flex items-center gap-1">
-            <Info className="w-3.5 h-3.5" />
-            <span>Prototype Reconstruction • Interactive 3D Model Explorer</span>
+          <div className="text-[11px] text-[#68736E] flex items-center gap-1">
+            <Info className="w-3.5 h-3.5 text-[#78AFA2]" />
+            <span>TerraRecon Single-Pass 3D Model Explorer</span>
           </div>
         </div>
       </div>

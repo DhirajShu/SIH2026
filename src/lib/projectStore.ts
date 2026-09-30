@@ -27,8 +27,13 @@ export function getProjects(): ReconstructionProject[] {
 }
 
 export function getProjectById(id: string): ReconstructionProject | undefined {
+  if (id === "demo") {
+    return SAMPLE_PROJECTS[0];
+  }
   const all = getProjects();
-  return all.find((p) => p.id === id);
+  const found = all.find((p) => p.id === id);
+  if (found) return found;
+  return SAMPLE_PROJECTS.find((p) => p.id === id);
 }
 
 export function saveProject(project: ReconstructionProject): void {

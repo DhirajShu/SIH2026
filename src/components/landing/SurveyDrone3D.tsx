@@ -21,9 +21,9 @@ function UserDroneModel({
 }: {
   scrollProgress: number;
 }) {
-  const groupRef = useRef<THREE.Group>(null);
-  const { scene, animations } = useGLTF("/models/drone.glb");
-  const { actions, names } = useAnimations(animations, groupRef);
+    const groupRef = useRef<THREE.Group>(null);
+    const { scene, animations } = useGLTF("/models/drone_optimized.glb");
+    const { actions, names } = useAnimations(animations, groupRef);
 
   useEffect(() => {
     // CRITICAL CREATIVE DIRECTION: Keep drone intact as one piece.
@@ -72,10 +72,10 @@ function UserDroneModel({
       <mesh position={[0, -2.6, -1.8]} rotation={[Math.PI / 2 + 0.28, 0, 0]}>
         <coneGeometry args={[2.8, 5.0, 4]} />
         <meshBasicMaterial
-          color="#f59e0b"
+          color="#78AFA2"
           wireframe
           transparent
-          opacity={0.16}
+          opacity={0.22}
         />
       </mesh>
     </group>
@@ -213,7 +213,7 @@ export function SurveyDrone3D({
 
 // Preload the user's drone model for instant caching
 try {
-  useGLTF.preload("/models/drone.glb");
+  useGLTF.preload("/models/drone_optimized.glb");
 } catch {
   // Ignored if called in SSR
 }

@@ -1,29 +1,33 @@
 import React from "react";
 import Link from "next/link";
-import { Compass, AlertTriangle, ArrowLeft } from "lucide-react";
+import { ArrowLeft, Compass } from "lucide-react";
+import { TerraReconLogo } from "@/components/layout/TerraReconLogo";
 
 export default function NotFound() {
   return (
-    <div className="flex-1 min-h-[70vh] flex items-center justify-center bg-neutral-950 font-sans text-neutral-100 px-4">
-      <div className="max-w-md w-full p-8 rounded-xl bg-neutral-900/80 border border-neutral-800 text-center space-y-4 font-mono shadow-2xl">
-        <div className="w-12 h-12 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 mx-auto">
-          <AlertTriangle className="w-6 h-6" />
+    <div className="flex-1 min-h-[75vh] flex items-center justify-center bg-[#080B0A] font-sans text-[#F1F4F2] px-4 select-none">
+      <div className="max-w-md w-full p-8 rounded-[14px] bg-[#121916] border border-[#26302C] text-center space-y-5 shadow-2xl">
+        <div className="w-12 h-12 rounded-[10px] bg-[#0D1210] border border-[#26302C] flex items-center justify-center text-[#78AFA2] mx-auto">
+          <Compass className="w-6 h-6 animate-pulse" />
         </div>
-        <div>
-          <div className="text-3xl font-bold text-neutral-100">404</div>
-          <div className="text-xs text-neutral-400 mt-1 uppercase tracking-wider">
-            COORDINATE OUT OF SURVEY BOUNDS
-          </div>
+
+        <div className="space-y-1">
+          <div className="text-4xl font-mono font-bold tracking-tight text-[#F1F4F2]">404</div>
+          <h1 className="text-lg font-semibold tracking-tight text-[#F1F4F2] uppercase font-mono">
+            LOST IN RECONSTRUCTION.
+          </h1>
+          <p className="text-xs text-[#9BA6A1] font-sans leading-relaxed pt-1">
+            There&apos;s no terrain here. The requested spatial dataset or coordinate sector could not be found.
+          </p>
         </div>
-        <p className="text-xs text-neutral-400 font-sans leading-relaxed">
-          The requested terrain sector or mission dataset could not be located in the current geospatial spatial database.
-        </p>
+
         <div className="pt-2">
           <Link
             href="/dashboard"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-neutral-200 text-xs font-mono transition-colors"
+            className="h-11 px-5 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-sans text-xs font-semibold tracking-wider inline-flex items-center gap-2 transition-all shadow-md"
           >
-            <ArrowLeft className="w-3.5 h-3.5" /> Return to Mission Console
+            <ArrowLeft className="w-4 h-4" />
+            RETURN TO DASHBOARD
           </Link>
         </div>
       </div>

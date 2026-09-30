@@ -4,7 +4,6 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
-  Compass,
   Mail,
   Lock,
   ArrowRight,
@@ -12,6 +11,7 @@ import {
   Info
 } from "lucide-react";
 import { useAuth } from "@/lib/auth";
+import { TerraReconLogo } from "@/components/layout/TerraReconLogo";
 
 function LoginForm() {
   const router = useRouter();
@@ -80,40 +80,35 @@ function LoginForm() {
   return (
     <div className="w-full max-w-md space-y-6">
       {/* Brand Header */}
-      <div className="text-center space-y-2">
-        <Link href="/" className="inline-flex items-center gap-2 mb-2 group">
-          <div className="w-9 h-9 rounded-lg bg-neutral-900 border border-neutral-800 flex items-center justify-center text-amber-500 group-hover:border-amber-500/50 transition-colors">
-            <Compass className="w-5 h-5" />
-          </div>
-          <span className="font-mono text-sm tracking-wider font-semibold text-neutral-100">
-            TERRARECON
-          </span>
+      <div className="text-center space-y-2 flex flex-col items-center">
+        <Link href="/" className="inline-flex items-center gap-2 mb-2 group transition-opacity hover:opacity-90">
+          <TerraReconLogo size={28} subtext="ENTER OPERATIONAL CONSOLE" />
         </Link>
 
-        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-100">
+        <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-[#F1F4F2]">
           Welcome back
         </h1>
-        <p className="text-xs font-mono text-neutral-400">
+        <p className="text-xs font-mono text-[#9BA6A1]">
           SIGN IN TO ACCESS YOUR GEOSPATIAL RECONSTRUCTION WORKSPACE
         </p>
       </div>
 
       {/* Authentication Card */}
-      <div className="p-6 sm:p-8 rounded-xl bg-neutral-900/80 border border-neutral-800 shadow-2xl backdrop-blur space-y-5">
+      <div className="p-6 sm:p-8 rounded-[14px] bg-[#121916] border border-[#26302C] shadow-2xl space-y-5">
         {/* Error Banner */}
         {errorMsg && (
-          <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 font-mono text-xs flex items-start gap-2 animate-in fade-in">
+          <div className="p-3 rounded-[8px] bg-[#B87575]/12 border border-[#B87575]/35 text-[#B87575] font-mono text-xs flex items-start gap-2">
             <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <span>{errorMsg}</span>
           </div>
         )}
 
-        {/* Google OAuth Notice (Transparent about prototype state) */}
+        {/* Google OAuth Notice */}
         {googleNotice && (
-          <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 font-mono text-xs flex items-start gap-2 animate-in fade-in">
-            <Info className="w-4 h-4 shrink-0 mt-0.5 text-amber-400" />
+          <div className="p-3 rounded-[8px] bg-[#B49B69]/12 border border-[#B49B69]/35 text-[#B49B69] font-mono text-xs flex items-start gap-2">
+            <Info className="w-4 h-4 shrink-0 mt-0.5 text-[#B49B69]" />
             <span>
-              <strong>Prototype Notice:</strong> Google OAuth client ID is not configured in this local environment. Please use the email sign-in or demo accounts below.
+              <strong>Prototype Notice:</strong> Google OAuth is restricted in this offline sandbox. Please use email credentials or the evaluator accounts below.
             </span>
           </div>
         )}
@@ -121,11 +116,11 @@ function LoginForm() {
         <form onSubmit={handleSubmit} className="space-y-4 font-mono text-xs">
           {/* Email Field */}
           <div>
-            <label className="block text-neutral-300 mb-1.5 font-medium">
+            <label className="block text-[#F1F4F2] mb-1.5 font-medium">
               EMAIL ADDRESS
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-[#68736E] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 value={email}
@@ -134,7 +129,7 @@ function LoginForm() {
                   if (errorMsg) setErrorMsg(null);
                 }}
                 disabled={isSubmitting}
-                className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 disabled:opacity-50 transition-colors"
+                className="w-full pl-9 pr-3 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] disabled:opacity-50 transition-colors"
                 placeholder="name@organization.gov.in"
               />
             </div>
@@ -143,11 +138,11 @@ function LoginForm() {
           {/* Password Field */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label className="text-neutral-300 font-medium">PASSWORD</label>
-              <span className="text-[10px] text-neutral-500">Min. 6 chars</span>
+              <label className="text-[#F1F4F2] font-medium">PASSWORD</label>
+              <span className="text-[10px] text-[#68736E]">Min. 6 chars</span>
             </div>
             <div className="relative">
-              <Lock className="w-4 h-4 text-neutral-500 absolute left-3 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-[#68736E] absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 value={password}
@@ -156,7 +151,7 @@ function LoginForm() {
                   if (errorMsg) setErrorMsg(null);
                 }}
                 disabled={isSubmitting}
-                className="w-full pl-9 pr-3 py-2.5 bg-neutral-950 border border-neutral-800 rounded-lg text-neutral-100 placeholder:text-neutral-600 focus:outline-none focus:border-amber-500 disabled:opacity-50 transition-colors"
+                className="w-full pl-9 pr-3 py-2.5 bg-[#0D1210] border border-[#26302C] rounded-[8px] text-[#F1F4F2] placeholder:text-[#68736E] focus:outline-none focus:border-[#78AFA2] disabled:opacity-50 transition-colors"
                 placeholder="••••••••••••"
               />
             </div>
@@ -166,11 +161,11 @@ function LoginForm() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-2.5 px-4 bg-amber-500 hover:bg-amber-400 text-neutral-950 font-semibold text-xs font-mono rounded-lg flex items-center justify-center gap-2 transition-all shadow-lg shadow-amber-500/20 disabled:opacity-50 cursor-pointer"
+            className="w-full h-11 px-4 bg-[#78AFA2] hover:bg-[#8CC2B4] text-[#080B0A] font-semibold text-xs font-mono rounded-[8px] flex items-center justify-center gap-2 transition-all shadow-md disabled:opacity-50 cursor-pointer"
           >
             {isSubmitting ? (
               <div className="flex items-center gap-2">
-                <div className="w-3.5 h-3.5 border-2 border-neutral-950 border-t-transparent rounded-full animate-spin" />
+                <div className="w-3.5 h-3.5 border-2 border-[#080B0A] border-t-transparent rounded-full animate-spin" />
                 <span>Verifying Credentials...</span>
               </div>
             ) : (
@@ -183,18 +178,18 @@ function LoginForm() {
           {/* Divider */}
           <div className="relative my-4">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-800" />
+              <div className="w-full border-t border-[#26302C]" />
             </div>
             <div className="relative flex justify-center text-[10px] uppercase font-mono">
-              <span className="bg-neutral-900 px-2 text-neutral-500">Or continue with</span>
+              <span className="bg-[#121916] px-2 text-[#68736E]">Or continue with</span>
             </div>
           </div>
 
-          {/* Continue with Google Button (clearly labeled as Prototype-only) */}
+          {/* Continue with Google Button */}
           <button
             type="button"
             onClick={() => setGoogleNotice(true)}
-            className="w-full py-2.5 px-4 bg-neutral-950 hover:bg-neutral-800/80 border border-neutral-800 text-neutral-300 font-mono text-xs rounded-lg flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
+            className="w-full h-11 px-4 bg-[#0D1210] hover:bg-[#17211d] border border-[#26302C] text-[#F1F4F2] font-mono text-xs rounded-[8px] flex items-center justify-center gap-2.5 transition-colors cursor-pointer"
           >
             <svg className="w-3.5 h-3.5" viewBox="0 0 24 24">
               <path
@@ -215,47 +210,44 @@ function LoginForm() {
               />
             </svg>
             <span>Continue with Google</span>
-            <span className="text-[9px] px-1 py-0.2 rounded bg-neutral-800 text-neutral-400 font-mono">
+            <span className="text-[9px] px-1 py-0.2 rounded-[4px] bg-[#121916] border border-[#26302C] text-[#9BA6A1] font-mono">
               Prototype
             </span>
           </button>
         </form>
 
-        {/* Quick Evaluator Access (SIH Prototype Helper) */}
-        <div className="pt-3 border-t border-neutral-800/80 space-y-2">
-          <div className="text-[10px] font-mono text-neutral-500 uppercase tracking-wider text-center">
+        {/* Quick Evaluator Access */}
+        <div className="pt-3 border-t border-[#26302C] space-y-2">
+          <div className="text-[10px] font-mono text-[#68736E] uppercase tracking-wider text-center">
             Quick Demo Access for Evaluators:
           </div>
           <div className="grid grid-cols-2 gap-2 font-mono text-[11px]">
             <button
               type="button"
-              onClick={() => fillDemoAccount("surveyor@terra-recon.io", "password123")}
-              className="p-2 rounded bg-neutral-950 border border-neutral-800 hover:border-amber-500/50 text-neutral-300 text-left transition-colors cursor-pointer"
+              onClick={() => fillDemoAccount("lead.surveyor@terra-recon.io", "surveyor2026")}
+              className="p-2 rounded-[8px] bg-[#0D1210] hover:bg-[#17211d] border border-[#26302C] hover:border-[#78AFA2] text-left transition-colors cursor-pointer"
             >
-              <div className="text-amber-400 font-semibold truncate">Dr. Dhiraj Sharma</div>
-              <div className="text-neutral-500 text-[10px]">Lead Specialist</div>
+              <div className="text-[#F1F4F2] font-semibold truncate">Lead Surveyor</div>
+              <div className="text-[#68736E] text-[10px]">DGCA Certified</div>
             </button>
             <button
               type="button"
-              onClick={() => fillDemoAccount("evaluator@sih.gov.in", "password123")}
-              className="p-2 rounded bg-neutral-950 border border-neutral-800 hover:border-emerald-500/50 text-neutral-300 text-left transition-colors cursor-pointer"
+              onClick={() => fillDemoAccount("sih.evaluator@nic.in", "evaluator2026")}
+              className="p-2 rounded-[8px] bg-[#0D1210] hover:bg-[#17211d] border border-[#26302C] hover:border-[#78AFA2] text-left transition-colors cursor-pointer"
             >
-              <div className="text-emerald-400 font-semibold truncate">SIH Jury</div>
-              <div className="text-neutral-500 text-[10px]">Technical Evaluator</div>
+              <div className="text-[#78AFA2] font-semibold truncate">SIH Jury</div>
+              <div className="text-[#68736E] text-[10px]">Ministry Access</div>
             </button>
           </div>
         </div>
-      </div>
 
-      {/* Footer Navigation */}
-      <div className="text-center font-mono text-xs text-neutral-500 space-y-1">
-        <div>
-          Don&apos;t have an account?{" "}
-          <Link href="/signup" className="text-amber-400 hover:underline">
-            Create your workspace
+        {/* Link to Signup */}
+        <div className="text-center pt-2 font-mono text-xs text-[#9BA6A1]">
+          Need new ground station credentials?{" "}
+          <Link href="/signup" className="text-[#78AFA2] hover:text-[#8CC2B4] font-medium hover:underline">
+            Register workspace
           </Link>
         </div>
-        <div>Session is stored securely in your local browser sandbox.</div>
       </div>
     </div>
   );
@@ -263,12 +255,11 @@ function LoginForm() {
 
 export default function LoginPage() {
   return (
-    <div className="flex-1 min-h-[85vh] flex items-center justify-center px-4 py-12 bg-neutral-950 font-sans select-none">
+    <div className="flex-1 min-h-[85vh] flex items-center justify-center px-4 py-12 bg-[#080B0A] font-sans select-none">
       <Suspense
         fallback={
-          <div className="p-8 text-center font-mono text-xs text-neutral-400">
-            <div className="w-6 h-6 border-2 border-amber-500 border-t-transparent rounded-full animate-spin mx-auto mb-2" />
-            Loading authentication portal...
+          <div className="w-full max-w-md p-8 rounded-[14px] bg-[#121916] border border-[#26302C] text-center font-mono text-xs text-[#9BA6A1]">
+            INITIALIZING WORKSPACE AUTHENTICATION...
           </div>
         }
       >

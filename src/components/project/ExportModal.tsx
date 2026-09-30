@@ -216,21 +216,21 @@ georeferencing information such as GPS, RTK, or ground control points.
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 select-none">
-      <div className="relative w-full max-w-xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden font-sans">
+      <div className="relative w-full max-w-xl bg-[#121916] border border-[#26302C] rounded-[14px] shadow-2xl overflow-hidden font-sans">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-950/70">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#26302C] bg-[#0D1210]">
           <div>
-            <h3 className="text-base font-semibold text-neutral-100 flex items-center gap-2">
-              <Download className="w-4 h-4 text-amber-500" />
+            <h3 className="text-base font-semibold text-[#F1F4F2] flex items-center gap-2">
+              <Download className="w-4 h-4 text-[#78AFA2]" />
               <span>Export 3D Reconstruction</span>
             </h3>
-            <p className="text-xs text-neutral-400 mt-0.5 truncate max-w-md">
+            <p className="text-xs text-[#9BA6A1] mt-0.5 truncate max-w-md">
               {project.title}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
+            className="p-1.5 text-[#68736E] hover:text-[#F1F4F2] rounded-[6px] hover:bg-[#121916] transition-colors cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
@@ -238,41 +238,41 @@ georeferencing information such as GPS, RTK, or ground control points.
 
         {/* Success Notification Banner */}
         {successMessage && (
-          <div className="mx-6 mt-4 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono text-xs flex items-center gap-2.5 animate-in fade-in">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="mx-6 mt-4 p-3.5 rounded-[8px] bg-[#7FAE8D]/15 border border-[#7FAE8D]/35 text-[#7FAE8D] font-mono text-xs flex items-center gap-2.5">
+            <CheckCircle2 className="w-4 h-4 text-[#7FAE8D] shrink-0" />
             <span className="flex-1">{successMessage}</span>
           </div>
         )}
 
         {/* Error Notification Banner */}
         {errorMessage && (
-          <div className="mx-6 mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 font-mono text-xs flex items-center gap-2.5 animate-in fade-in">
+          <div className="mx-6 mt-4 p-3.5 rounded-[8px] bg-[#B87575]/15 border border-[#B87575]/35 text-[#B87575] font-mono text-xs flex items-center gap-2.5">
             <span className="flex-1">{errorMessage}</span>
           </div>
         )}
 
-        {/* Working Export Formats Only */}
+        {/* Verified Export Formats */}
         <div className="p-6 space-y-3 font-mono text-xs">
-          <div className="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold pb-1 flex items-center justify-between">
+          <div className="text-[11px] text-[#9BA6A1] uppercase tracking-wider font-semibold pb-1 flex items-center justify-between">
             <span>Verified Export Formats</span>
-            <span className="text-[10px] text-neutral-500 font-normal">CLIENT-SIDE GENERATION</span>
+            <span className="text-[10px] text-[#68736E] font-normal">CLIENT-SIDE GENERATION</span>
           </div>
 
           {/* 1. GLB Export */}
-          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+          <div className="p-4 rounded-[10px] bg-[#0D1210] border border-[#26302C] flex items-center justify-between hover:border-[#78AFA2]/50 transition-colors">
             <div className="min-w-0 pr-3">
               <div className="flex items-center gap-2">
-                <Box className="w-4 h-4 text-amber-400 shrink-0" />
-                <span className="font-semibold text-neutral-200 text-sm">Binary GLTF (.glb)</span>
+                <Box className="w-4 h-4 text-[#78AFA2] shrink-0" />
+                <span className="font-semibold text-[#F1F4F2] text-sm">Binary GLTF (.glb)</span>
               </div>
-              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+              <p className="text-[11px] text-[#9BA6A1] font-sans mt-0.5">
                 Self-contained binary 3D model with embedded geometry and materials.
               </p>
             </div>
             <button
               onClick={handleExportGLB}
               disabled={exportingFormat !== null}
-              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-1.5 transition-all shadow-md shrink-0 cursor-pointer"
+              className="h-9 px-4 rounded-[8px] bg-[#78AFA2] hover:bg-[#8CC2B4] disabled:opacity-50 text-[#080B0A] font-semibold font-mono text-xs flex items-center gap-1.5 transition-all shadow-sm shrink-0 cursor-pointer"
             >
               {exportingFormat === "glb" ? (
                 <>
@@ -289,20 +289,20 @@ georeferencing information such as GPS, RTK, or ground control points.
           </div>
 
           {/* 2. OBJ Export */}
-          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+          <div className="p-4 rounded-[10px] bg-[#0D1210] border border-[#26302C] flex items-center justify-between hover:border-[#78AFA2]/50 transition-colors">
             <div className="min-w-0 pr-3">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-sky-400 shrink-0" />
-                <span className="font-semibold text-neutral-200 text-sm">Wavefront OBJ (.obj)</span>
+                <Layers className="w-4 h-4 text-[#78AFA2] shrink-0" />
+                <span className="font-semibold text-[#F1F4F2] text-sm">Wavefront OBJ (.obj)</span>
               </div>
-              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+              <p className="text-[11px] text-[#9BA6A1] font-sans mt-0.5">
                 Standard geometric mesh format. Compatible with Blender, MeshLab, CAD.
               </p>
             </div>
             <button
               onClick={handleExportOBJ}
               disabled={exportingFormat !== null}
-              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-200 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-neutral-700 shrink-0 cursor-pointer"
+              className="h-9 px-4 rounded-[8px] bg-[#121916] hover:bg-[#17211d] disabled:opacity-50 text-[#F1F4F2] font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-[#26302C] hover:border-[#78AFA2] shrink-0 cursor-pointer"
             >
               {exportingFormat === "obj" ? (
                 <>
@@ -319,20 +319,20 @@ georeferencing information such as GPS, RTK, or ground control points.
           </div>
 
           {/* 3. PLY Export */}
-          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+          <div className="p-4 rounded-[10px] bg-[#0D1210] border border-[#26302C] flex items-center justify-between hover:border-[#78AFA2]/50 transition-colors">
             <div className="min-w-0 pr-3">
               <div className="flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span className="font-semibold text-neutral-200 text-sm">Stanford PLY (.ply)</span>
+                <Sparkles className="w-4 h-4 text-[#78AFA2] shrink-0" />
+                <span className="font-semibold text-[#F1F4F2] text-sm">Stanford PLY (.ply)</span>
               </div>
-              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+              <p className="text-[11px] text-[#9BA6A1] font-sans mt-0.5">
                 Polygon File Format storing vertex coordinates, normals, and vertex colors.
               </p>
             </div>
             <button
               onClick={handleExportPLY}
               disabled={exportingFormat !== null}
-              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-200 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-neutral-700 shrink-0 cursor-pointer"
+              className="h-9 px-4 rounded-[8px] bg-[#121916] hover:bg-[#17211d] disabled:opacity-50 text-[#F1F4F2] font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-[#26302C] hover:border-[#78AFA2] shrink-0 cursor-pointer"
             >
               {exportingFormat === "ply" ? (
                 <>
@@ -349,20 +349,20 @@ georeferencing information such as GPS, RTK, or ground control points.
           </div>
 
           {/* 4. Technical Summary Report */}
-          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+          <div className="p-4 rounded-[10px] bg-[#0D1210] border border-[#26302C] flex items-center justify-between hover:border-[#78AFA2]/50 transition-colors">
             <div className="min-w-0 pr-3">
               <div className="flex items-center gap-2">
-                <FileText className="w-4 h-4 text-purple-400 shrink-0" />
-                <span className="font-semibold text-neutral-200 text-sm">Summary Report (.txt)</span>
+                <FileText className="w-4 h-4 text-[#78AFA2] shrink-0" />
+                <span className="font-semibold text-[#F1F4F2] text-sm">Summary Report (.txt)</span>
               </div>
-              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+              <p className="text-[11px] text-[#9BA6A1] font-sans mt-0.5">
                 Complete audit text file containing project metadata and pipeline log.
               </p>
             </div>
             <button
               onClick={handleExportReport}
               disabled={exportingFormat !== null}
-              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-200 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-neutral-700 shrink-0 cursor-pointer"
+              className="h-9 px-4 rounded-[8px] bg-[#121916] hover:bg-[#17211d] disabled:opacity-50 text-[#F1F4F2] font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-[#26302C] hover:border-[#78AFA2] shrink-0 cursor-pointer"
             >
               {exportingFormat === "report" ? (
                 <>
@@ -380,13 +380,13 @@ georeferencing information such as GPS, RTK, or ground control points.
         </div>
 
         {/* Modal Footer */}
-        <div className="flex items-center justify-between px-6 py-3.5 border-t border-neutral-800 bg-neutral-950 text-xs font-mono text-neutral-400">
-          <div className="text-[11px] text-neutral-500">
-            Real 3D formats generated from model geometry
+        <div className="flex items-center justify-between px-6 py-3.5 border-t border-[#26302C] bg-[#0D1210] text-xs font-mono text-[#9BA6A1]">
+          <div className="text-[11px] text-[#68736E]">
+            Verified 3D formats generated from model geometry
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg text-xs transition-colors cursor-pointer"
+            className="h-8 px-4 bg-[#121916] hover:bg-[#17211d] border border-[#26302C] text-[#F1F4F2] rounded-[8px] text-xs transition-colors cursor-pointer"
           >
             Close
           </button>
