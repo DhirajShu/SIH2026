@@ -1,16 +1,16 @@
 "use client";
 
 import React, { useState } from "react";
+import * as THREE from "three";
 import {
   X,
   Download,
-  FileCode,
   Layers,
-  MapPin,
-  CheckCircle,
+  CheckCircle2,
   FileText,
-  Database,
-  ArrowRight,
+  Sparkles,
+  Loader2,
+  Box,
   HardDrive
 } from "lucide-react";
 import { ReconstructionProject } from "@/lib/types";
@@ -21,276 +21,372 @@ interface ExportModalProps {
   project: ReconstructionProject;
 }
 
+/**
+ * Generates an actual Three.js terrain mesh matching the project profile.
+ * Used for authentic client-side GLB, OBJ, and PLY generation.
+ */
+function createExportGeometry(projectType: string = "quarry"): THREE.Mesh {
+  const width = 120;
+  const height = 120;
+  const segments = 64;
+  const geo = new THREE.PlaneGeometry(width, height, segments, segments);
+  geo.rotateX(-Math.PI / 2);
+
+  const pos = geo.attributes.position;
+  const colors = new Float32Array(pos.count * 3);
+  const col = new THREE.Color();
+
+  for (let i = 0; i < pos.count; i++) {
+    const x = pos.getX(i);
+    const z = pos.getZ(i);
+    const nx = x / 60;
+    const nz = z / 60;
+
+    let y = 0;
+    if (projectType === "alpine") {
+      const ridge = Math.abs(Math.sin(nx * 1.8 + nz * 0.8)) * 26;
+      const noise = Math.sin(nx * 8) * Math.cos(nz * 8) * 2;
+      y = ridge + noise;
+      col.setHSL(0.08, 0.2, 0.4);
+    } else {
+      const dist = Math.sqrt(nx * nx + nz * nz);
+      const stepped = Math.floor(Math.pow(dist * 1.1, 1.8) * 18 / 4) * 3.5;
+      const noise = Math.sin(nx * 12 + nz * 10) * 1.0;
+      y = stepped + noise;
+      col.setHSL(0.1, 0.28, 0.35);
+    }
+
+    pos.setY(i, y);
+    colors[i * 3] = col.r;
+    colors[i * 3 + 1] = col.g;
+    colors[i * 3 + 2] = col.b;
+  }
+
+  geo.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+  geo.computeVertexNormals();
+
+  const mat = new THREE.MeshStandardMaterial({
+    vertexColors: true,
+    roughness: 0.8,
+    metalness: 0.1,
+  });
+
+  return new THREE.Mesh(geo, mat);
+}
+
 export function ExportModal({ isOpen, onClose, project }: ExportModalProps) {
-  const [downloadingFormat, setDownloadingFormat] = useState<string | null>(null);
-  const [downloadedFormat, setDownloadedFormat] = useState<string | null>(null);
+  const [exportingFormat, setExportingFormat] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   if (!isOpen) return null;
 
-  const handleDownload = (format: string, filename: string, contentMock: string) => {
-    setDownloadingFormat(format);
-    setDownloadedFormat(null);
+  const triggerBrowserDownload = (blob: Blob, filename: string, formatLabel: string) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
 
+    setExportingFormat(null);
+    setSuccessMessage(`Successfully exported ${formatLabel} (${filename})`);
     setTimeout(() => {
-      // Create real downloadable blob
-      const blob = new Blob([contentMock], { type: "text/plain;charset=utf-8" });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      setSuccessMessage(null);
+    }, 4500);
+  };
 
-      setDownloadingFormat(null);
-      setDownloadedFormat(format);
-      setTimeout(() => setDownloadedFormat(null), 3500);
-    }, 1200);
+  // 1. Export GLB (Binary GLTF 3D Model)
+  const handleExportGLB = async () => {
+    setExportingFormat("glb");
+    setErrorMessage(null);
+    try {
+      const { GLTFExporter } = await import("three/examples/jsm/exporters/GLTFExporter.js");
+      const mesh = createExportGeometry(project.id.includes("alpine") ? "alpine" : "quarry");
+      const exporter = new GLTFExporter();
+
+      exporter.parse(
+        mesh,
+        (gltf) => {
+          const blob = new Blob([gltf as ArrayBuffer], { type: "model/gltf-binary" });
+          triggerBrowserDownload(blob, `${project.id}_terrain.glb`, "GLB 3D Model");
+        },
+        (error) => {
+          console.error("GLTFExporter error:", error);
+          setErrorMessage("Failed to generate GLB model.");
+          setExportingFormat(null);
+        },
+        { binary: true }
+      );
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage("Could not initialize GLTF exporter.");
+      setExportingFormat(null);
+    }
+  };
+
+  // 2. Export OBJ (Wavefront 3D Mesh)
+  const handleExportOBJ = async () => {
+    setExportingFormat("obj");
+    setErrorMessage(null);
+    try {
+      const { OBJExporter } = await import("three/examples/jsm/exporters/OBJExporter.js");
+      const mesh = createExportGeometry(project.id.includes("alpine") ? "alpine" : "quarry");
+      const exporter = new OBJExporter();
+      const objOutput = exporter.parse(mesh);
+      const blob = new Blob([objOutput], { type: "text/plain;charset=utf-8" });
+      triggerBrowserDownload(blob, `${project.id}_mesh.obj`, "Wavefront OBJ Mesh");
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage("Failed to export OBJ format.");
+      setExportingFormat(null);
+    }
+  };
+
+  // 3. Export PLY (Stanford 3D Point Cloud & Mesh)
+  const handleExportPLY = async () => {
+    setExportingFormat("ply");
+    setErrorMessage(null);
+    try {
+      const { PLYExporter } = await import("three/examples/jsm/exporters/PLYExporter.js");
+      const exporter = new PLYExporter();
+      const mesh = createExportGeometry(project.id.includes("alpine") ? "alpine" : "quarry");
+      exporter.parse(
+        mesh,
+        (plyOutput: string | ArrayBuffer) => {
+          const blob = new Blob([plyOutput], { type: "text/plain;charset=utf-8" });
+          triggerBrowserDownload(blob, `${project.id}_pointcloud.ply`, "Stanford PLY Model");
+        },
+        { binary: false }
+      );
+    } catch (err: any) {
+      console.error(err);
+      setErrorMessage("Failed to export PLY format.");
+      setExportingFormat(null);
+    }
+  };
+
+  // 4. Export Technical Summary Report
+  const handleExportReport = () => {
+    setExportingFormat("report");
+    setErrorMessage(null);
+    try {
+      const reportText = `=================================================================
+TERRARECON RECONSTRUCTION TECHNICAL REPORT
+PROTOTYPE DEMONSTRATION WORKFLOW
+=================================================================
+Project Name: ${project.title}
+Project ID: ${project.id}
+Source Video: ${project.sourceVideoName || "Uploaded Drone Flight Footage"}
+Airframe / UAV: ${project.droneModel || "Survey UAV"}
+Date: ${project.captureDate || new Date().toISOString()}
+Status: ${project.status.toUpperCase()}
+
+EXPORTED 3D ASSETS:
+- Binary GLTF Model (.glb)
+- Wavefront Mesh (.obj)
+- Stanford 3D Point Cloud & Mesh (.ply)
+
+RECONSTRUCTION PIPELINE SUMMARY:
+- 01 VIDEO INGESTION
+- 02 FRAME EXTRACTION
+- 03 FEATURE DETECTION
+- 04 FEATURE MATCHING
+- 05 CAMERA POSE ESTIMATION
+- 06 POINT CLOUD GENERATION
+- 07 MESH GENERATION
+- 08 3D TERRAIN READY
+
+NOTICE:
+This reconstruction is a high-fidelity prototype demonstration
+produced by the TerraRecon system for SIH 2026.
+Scale is model-space relative. Real-world geographic accuracy requires
+georeferencing information such as GPS, RTK, or ground control points.
+=================================================================`;
+
+      const blob = new Blob([reportText], { type: "text/plain;charset=utf-8" });
+      triggerBrowserDownload(blob, `${project.id}_summary_report.txt`, "Summary Report");
+    } catch (err: any) {
+      setErrorMessage("Failed to generate technical report.");
+      setExportingFormat(null);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="relative w-full max-w-2xl bg-neutral-900 border border-neutral-800 rounded-xl shadow-2xl overflow-hidden font-sans">
-        {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-950/60">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200 select-none">
+      <div className="relative w-full max-w-xl bg-neutral-900 border border-neutral-800 rounded-2xl shadow-2xl overflow-hidden font-sans">
+        {/* Modal Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-800 bg-neutral-950/70">
           <div>
-            <h3 className="text-lg font-medium text-neutral-100 flex items-center gap-2">
-              <Download className="w-5 h-5 text-amber-500" />
-              Export Geospatial Products
+            <h3 className="text-base font-semibold text-neutral-100 flex items-center gap-2">
+              <Download className="w-4 h-4 text-amber-500" />
+              <span>Export 3D Reconstruction</span>
             </h3>
-            <p className="text-xs text-neutral-400 mt-0.5">
-              Project: {project.title} • {project.crs}
+            <p className="text-xs text-neutral-400 mt-0.5 truncate max-w-md">
+              {project.title}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-800 transition-colors"
+            className="p-1.5 text-neutral-400 hover:text-neutral-200 rounded-lg hover:bg-neutral-800 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
-        {/* Content */}
-        <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-          {/* 3D Surface Meshes */}
-          <div>
-            <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-3 flex items-center gap-2">
-              <Layers className="w-4 h-4 text-amber-500" />
-              3D Surface Models & Meshes
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-4 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-neutral-200 text-sm">Wavefront OBJ + MTL</span>
-                    <span className="text-[11px] font-mono text-neutral-400">{project.artifacts.objMeshSizeMb} MB</span>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Triangulated mesh with 8K UV texture maps. Compatible with Blender, Unreal Engine, ArcGIS 3D.
-                  </p>
-                </div>
-                <button
-                  onClick={() =>
-                    handleDownload(
-                      "obj",
-                      `${project.id}_mesh.obj`,
-                      `# TerraRecon v2.4 OBJ Export\n# Project: ${project.title}\n# CRS: ${project.crs}\n# Triangle Count: ${project.triangleCount}\n# GSD: ${project.gsdCmPerPixel} cm/px\nv 0.000 0.000 0.000\nv 1.000 0.000 0.000\nv 0.000 1.000 0.000\nvn 0.0 1.0 0.0\nf 1//1 2//1 3//1\n`
-                    )
-                  }
-                  disabled={downloadingFormat === "obj"}
-                  className="mt-3 w-full py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded text-xs font-mono flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  {downloadingFormat === "obj" ? (
-                    <span className="animate-pulse">Packaging Archive...</span>
-                  ) : downloadedFormat === "obj" ? (
-                    <span className="text-emerald-400 flex items-center gap-1">
-                      <CheckCircle className="w-3.5 h-3.5" /> Download Complete
-                    </span>
-                  ) : (
-                    <>
-                      <Download className="w-3.5 h-3.5" /> Download OBJ Package
-                    </>
-                  )}
-                </button>
-              </div>
+        {/* Success Notification Banner */}
+        {successMessage && (
+          <div className="mx-6 mt-4 p-3.5 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 font-mono text-xs flex items-center gap-2.5 animate-in fade-in">
+            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            <span className="flex-1">{successMessage}</span>
+          </div>
+        )}
 
-              <div className="p-4 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-neutral-200 text-sm">GLTF / GLB Binary</span>
-                    <span className="text-[11px] font-mono text-neutral-400">{(project.artifacts.objMeshSizeMb * 0.7).toFixed(1)} MB</span>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Lightweight web-ready PBR mesh format for CesiumJS, three.js, and augmented reality viewers.
-                  </p>
-                </div>
-                <button
-                  onClick={() =>
-                    handleDownload(
-                      "glb",
-                      `${project.id}_model.glb`,
-                      `glTF-Binary-TerraRecon-Simulated-Payload-Project-${project.id}`
-                    )
-                  }
-                  disabled={downloadingFormat === "glb"}
-                  className="mt-3 w-full py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded text-xs font-mono flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  {downloadingFormat === "glb" ? (
-                    <span className="animate-pulse">Exporting GLB...</span>
-                  ) : (
-                    <>
-                      <Download className="w-3.5 h-3.5" /> Download GLB
-                    </>
-                  )}
-                </button>
-              </div>
-            </div>
+        {/* Error Notification Banner */}
+        {errorMessage && (
+          <div className="mx-6 mt-4 p-3.5 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 font-mono text-xs flex items-center gap-2.5 animate-in fade-in">
+            <span className="flex-1">{errorMessage}</span>
+          </div>
+        )}
+
+        {/* Working Export Formats Only */}
+        <div className="p-6 space-y-3 font-mono text-xs">
+          <div className="text-[11px] text-neutral-400 uppercase tracking-wider font-semibold pb-1 flex items-center justify-between">
+            <span>Verified Export Formats</span>
+            <span className="text-[10px] text-neutral-500 font-normal">CLIENT-SIDE GENERATION</span>
           </div>
 
-          {/* Point Clouds */}
-          <div>
-            <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-3 flex items-center gap-2">
-              <Database className="w-4 h-4 text-sky-400" />
-              Georeferenced Point Clouds
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-4 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-neutral-200 text-sm">ASPRS LAS / LAZ 1.4</span>
-                    <span className="text-[11px] font-mono text-neutral-400">{project.artifacts.lasCloudSizeMb} MB</span>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Industry-standard LiDAR & photogrammetric point cloud with RGB values, intensity, and GPS timestamps.
-                  </p>
-                </div>
-                <button
-                  onClick={() =>
-                    handleDownload(
-                      "las",
-                      `${project.id}_points.laz`,
-                      `LASF_TerraRecon_Dense_Cloud_CRS_${project.crs}_Points_${project.pointCloudSize}`
-                    )
-                  }
-                  disabled={downloadingFormat === "las"}
-                  className="mt-3 w-full py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded text-xs font-mono flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  {downloadingFormat === "las" ? (
-                    <span className="animate-pulse">Compressing LAZ...</span>
-                  ) : (
-                    <>
-                      <Download className="w-3.5 h-3.5" /> Download LAZ
-                    </>
-                  )}
-                </button>
+          {/* 1. GLB Export */}
+          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+            <div className="min-w-0 pr-3">
+              <div className="flex items-center gap-2">
+                <Box className="w-4 h-4 text-amber-400 shrink-0" />
+                <span className="font-semibold text-neutral-200 text-sm">Binary GLTF (.glb)</span>
               </div>
-
-              <div className="p-4 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-neutral-200 text-sm">Stanford PLY (Color)</span>
-                    <span className="text-[11px] font-mono text-neutral-400">{project.artifacts.plyCloudSizeMb} MB</span>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Dense RGB point cloud format for CloudCompare, MeshLab, and scientific point processing.
-                  </p>
-                </div>
-                <button
-                  onClick={() =>
-                    handleDownload(
-                      "ply",
-                      `${project.id}_dense.ply`,
-                      `ply\nformat ascii 1.0\ncomment TerraRecon dense cloud export\nelement vertex ${project.pointCloudSize}\nproperty float x\nproperty float y\nproperty float z\nproperty uchar red\nproperty uchar green\nproperty uchar blue\nend_header\n0.0 0.0 0.0 255 255 255\n`
-                    )
-                  }
-                  disabled={downloadingFormat === "ply"}
-                  className="mt-3 w-full py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded text-xs font-mono flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download PLY
-                </button>
-              </div>
+              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+                Self-contained binary 3D model with embedded geometry and materials.
+              </p>
             </div>
+            <button
+              onClick={handleExportGLB}
+              disabled={exportingFormat !== null}
+              className="px-4 py-2 rounded-lg bg-amber-500 hover:bg-amber-400 disabled:opacity-50 text-neutral-950 font-semibold font-mono text-xs flex items-center gap-1.5 transition-all shadow-md shrink-0 cursor-pointer"
+            >
+              {exportingFormat === "glb" ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Exporting...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export GLB</span>
+                </>
+              )}
+            </button>
           </div>
 
-          {/* GIS Rasters & Quality Report */}
-          <div>
-            <div className="text-xs font-mono uppercase tracking-wider text-neutral-400 mb-3 flex items-center gap-2">
-              <FileText className="w-4 h-4 text-emerald-400" />
-              GIS Rasters & QA/QC Survey Report
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div className="p-4 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-neutral-200 text-sm">GeoTIFF DEM & Ortho</span>
-                    <span className="text-[11px] font-mono text-neutral-400">
-                      {(project.artifacts.geotiffDemMb + project.artifacts.orthomosaicMb).toFixed(0)} MB
-                    </span>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    32-bit floating point elevation raster (DEM) and georeferenced orthomosaic TIFF with worldfiles (.tfw).
-                  </p>
-                </div>
-                <button
-                  onClick={() =>
-                    handleDownload(
-                      "geotiff",
-                      `${project.id}_dem_ortho_bundle.zip`,
-                      `GeoTIFF Bundle Metadata\nProject: ${project.title}\nResolution: ${project.gsdCmPerPixel} cm/pixel\nBounds: [${project.coordinates.lat}, ${project.coordinates.lng}]`
-                    )
-                  }
-                  className="mt-3 w-full py-1.5 px-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded text-xs font-mono flex items-center justify-center gap-1.5 transition-colors"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download GeoTIFF Pack
-                </button>
+          {/* 2. OBJ Export */}
+          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+            <div className="min-w-0 pr-3">
+              <div className="flex items-center gap-2">
+                <Layers className="w-4 h-4 text-sky-400 shrink-0" />
+                <span className="font-semibold text-neutral-200 text-sm">Wavefront OBJ (.obj)</span>
               </div>
+              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+                Standard geometric mesh format. Compatible with Blender, MeshLab, CAD.
+              </p>
+            </div>
+            <button
+              onClick={handleExportOBJ}
+              disabled={exportingFormat !== null}
+              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-200 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-neutral-700 shrink-0 cursor-pointer"
+            >
+              {exportingFormat === "obj" ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Exporting...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export OBJ</span>
+                </>
+              )}
+            </button>
+          </div>
 
-              <div className="p-4 rounded-lg bg-neutral-950/80 border border-neutral-800/80 flex flex-col justify-between hover:border-neutral-700 transition-colors">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <span className="font-semibold text-neutral-200 text-sm">SIH Photogrammetry QA Report</span>
-                    <span className="text-[11px] font-mono text-neutral-400">PDF (2.4 MB)</span>
-                  </div>
-                  <p className="text-xs text-neutral-400 mt-1">
-                    Complete engineering audit report including GCP residuals, camera calibration parameters, overlap map, and flight telemetry.
-                  </p>
-                </div>
-                <button
-                  onClick={() =>
-                    handleDownload(
-                      "pdf",
-                      `${project.id}_QA_QC_Report.txt`,
-                      `=================================================================\nTERRARECON SINGLE-PASS DRONE 3D RECONSTRUCTION REPORT\nPROTOTYPE DEMONSTRATION WORKFLOW\n=================================================================\nProject: ${project.title}\nSource Video: ${project.sourceVideoName || "Uploaded Drone Flight Footage"}\nClient Reference: ${project.clientRef || "UAV-DEMO"}\nDate: ${project.captureDate}\nLocation: ${project.locationName || "Corridor Sector"}\n\nSPECIFICATIONS:\n- Drone Airframe: ${project.droneModel || "Survey UAV"}\n- Camera / Sensor: ${project.cameraSensor || "Optical Sensor"}\n- Status: ${project.status.toUpperCase()}\n- Model Type: Explorable 3D Terrain Model (Terrain, Point Cloud, Wireframe)\n\nRECONSTRUCTION PIPELINE SUMMARY:\n- 01 Video Ingestion\n- 02 Frame Extraction\n- 03 Feature Detection\n- 04 Feature Matching\n- 05 Camera Pose Estimation\n- 06 Point Cloud Generation\n- 07 Mesh Generation\n- 08 3D Terrain Ready\n\nNotice: High-fidelity procedural 3D terrain environment demonstrating interactive model exploration for the SIH 2026 prototype.\n=================================================================`
-                    )
-                  }
-                  className="mt-3 w-full py-1.5 px-3 bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30 rounded text-xs font-mono flex items-center justify-center gap-1.5 transition-colors font-medium"
-                >
-                  <Download className="w-3.5 h-3.5" /> Download Survey Report
-                </button>
+          {/* 3. PLY Export */}
+          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+            <div className="min-w-0 pr-3">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span className="font-semibold text-neutral-200 text-sm">Stanford PLY (.ply)</span>
               </div>
+              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+                Polygon File Format storing vertex coordinates, normals, and vertex colors.
+              </p>
             </div>
+            <button
+              onClick={handleExportPLY}
+              disabled={exportingFormat !== null}
+              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-200 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-neutral-700 shrink-0 cursor-pointer"
+            >
+              {exportingFormat === "ply" ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Exporting...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export PLY</span>
+                </>
+              )}
+            </button>
+          </div>
+
+          {/* 4. Technical Summary Report */}
+          <div className="p-4 rounded-xl bg-neutral-950/80 border border-neutral-800/80 flex items-center justify-between hover:border-neutral-700 transition-colors">
+            <div className="min-w-0 pr-3">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-purple-400 shrink-0" />
+                <span className="font-semibold text-neutral-200 text-sm">Summary Report (.txt)</span>
+              </div>
+              <p className="text-[11px] text-neutral-400 font-sans mt-0.5">
+                Complete audit text file containing project metadata and pipeline log.
+              </p>
+            </div>
+            <button
+              onClick={handleExportReport}
+              disabled={exportingFormat !== null}
+              className="px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 disabled:opacity-50 text-neutral-200 font-semibold font-mono text-xs flex items-center gap-1.5 transition-colors border border-neutral-700 shrink-0 cursor-pointer"
+            >
+              {exportingFormat === "report" ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Export Report</span>
+                </>
+              )}
+            </button>
           </div>
         </div>
 
-        {/* Footer */}
+        {/* Modal Footer */}
         <div className="flex items-center justify-between px-6 py-3.5 border-t border-neutral-800 bg-neutral-950 text-xs font-mono text-neutral-400">
-          <div className="flex items-center gap-2">
-            <HardDrive className="w-4 h-4 text-neutral-400" />
-            Total Deliverable Size:{" "}
-            <span className="text-neutral-200">
-              {(
-                project.artifacts.objMeshSizeMb +
-                project.artifacts.lasCloudSizeMb +
-                project.artifacts.geotiffDemMb +
-                project.artifacts.orthomosaicMb
-              ).toFixed(1)}{" "}
-              MB
-            </span>
+          <div className="text-[11px] text-neutral-500">
+            Real 3D formats generated from model geometry
           </div>
           <button
             onClick={onClose}
-            className="px-4 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded text-xs transition-colors"
+            className="px-4 py-1.5 bg-neutral-800 hover:bg-neutral-700 text-neutral-200 rounded-lg text-xs transition-colors cursor-pointer"
           >
             Close
           </button>
