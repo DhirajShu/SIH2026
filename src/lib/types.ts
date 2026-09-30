@@ -39,6 +39,7 @@ export interface ReconstructionProject {
   title: string;
   clientRef?: string;
   description: string;
+  sourceVideoName?: string;
   locationName: string;
   country: string;
   coordinates: {

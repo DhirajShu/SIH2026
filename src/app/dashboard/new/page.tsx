@@ -246,6 +246,7 @@ export default function NewReconstructionPage() {
         title: projectName.trim(),
         clientRef: `UAV-${now.getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
         description: description.trim() || `Single-pass drone photogrammetry reconstruction (${file.name}).`,
+        sourceVideoName: file.name,
         locationName: "Aerial Survey Sector",
         country: "India",
         coordinates: {
