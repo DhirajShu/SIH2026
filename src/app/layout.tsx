@@ -89,9 +89,9 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} dark h-full antialiased scroll-smooth`}
+      className={`${geistSans.variable} ${geistMono.variable} ${spaceGrotesk.variable} dark antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-[#080B0A] text-[#F1F4F2] selection:bg-[#78AFA2]/30 selection:text-[#F1F4F2] font-sans">
+      <body className="min-h-screen flex flex-col bg-[#080B0A] text-[#F1F4F2] selection:bg-[#78AFA2]/30 selection:text-[#F1F4F2] font-sans">
         <AppProviders>
           <Navbar />
           <main className="flex-1 flex flex-col">{children}</main>
